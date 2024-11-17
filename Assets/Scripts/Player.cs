@@ -1,21 +1,16 @@
 using UnityEngine;
+using System;
+using System.Linq;
 
 public class Player : MonoBehaviour
 {
     public float speed = 10.0f; // The speed of the player object
     private float horizontal; // The horizontal input from the keyboard
     private float vertical; // The vertical input from the keyboard
-
-    // Jump Stats
     private Rigidbody rb; // The rigidbody of the player object
-    [SerializeField] private float jumpForce = 10.0f; // The force of the jump
     [SerializeField] private float groundCheckDistance = 0.65f; // Distance to check below the player
     [SerializeField] private bool isGrounded;
-
-    // Slam Stats
-    [SerializeField] private float slamForce = 30.0f; // The force of the slam
-    [SerializeField] private float slamRadius = 5.0f; // The radius of the slam effect
-    private bool isSlamActive = false; // Indicates if the slam effect is waiting to be applied
+    [SerializeField] private KeyCode[] skillBindings; // The key bindings for the skills
 
     // Debugging
     [SerializeField] private bool debug = false;
@@ -27,6 +22,8 @@ public class Player : MonoBehaviour
 
         // Register the player object with the GameManager
         GameManager.Instance.RegisterPlayer(gameObject);
+
+        // Note: GameManager must be initialized before the player object
     }
 
     void Update()
@@ -46,15 +43,24 @@ public class Player : MonoBehaviour
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        // Check for any key press
+        if (Input.anyKeyDown)
         {
-            if (isGrounded)
-            {
-                JumpAbility();
-            }
-            else if (!isSlamActive)
-            {
-                StartSlam();
+            // Check if the key pressed is a skill binding
+            foreach (KeyCode keyCode in skillBindings)
+            {   
+                if (Input.GetKeyDown(keyCode))
+                {
+                    if (debug)
+                    {
+                        Debug.Log("Key pressed: " + keyCode);
+                    }
+                    
+                    // Raise the KeyPress event
+                    EventDispatcher.Raise<KeyPressEvent>(new KeyPressEvent() {
+                        keyCode = keyCode
+                    });
+                }
             }
         }
     }
@@ -82,87 +88,38 @@ public class Player : MonoBehaviour
         }
     }
 
-    void JumpAbility()
+    public bool IsGrounded()
     {
-        // Add force to the player object upwards
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-
-        // Debugging
-        if (debug)
-        {
-            Debug.Log("Jumped");
-        }
-    }
-
-    void StartSlam()
-    {
-        // Add force to the player object downwards
-        rb.AddForce(Vector3.down * slamForce, ForceMode.Impulse);
-
-        // Activate the slam effect
-        isSlamActive = true;
-
-        // Debugging
-        if (debug)
-        {
-            Debug.Log("Slam started");
-        }
-
-        EventDispatcher.Raise<SkillActivatedEvent>(new SkillActivatedEvent() {
-            skillName = "Slam"
-        });
-    }
-
-    void ApplySlamEffect()
-    {
-        // Detect objects in an area below the player
-        Collider[] colliders = Physics.OverlapSphere(transform.position, slamRadius);
-
-        // Loop through all the colliders
-        foreach (Collider collider in colliders)
-        {
-            // Check if the collider is a rigidbody
-            Rigidbody targetRb = collider.GetComponent<Rigidbody>();
-
-            // Check if the rigidbody is not null and not the player's rigidbody
-            if (targetRb != null && targetRb != rb)
-            {
-                // Add force to the rigidbody
-                targetRb.AddForce(Vector3.up * (slamForce / 2), ForceMode.Impulse);
-            }
-        }
-
-        // Debugging
-        if (debug)
-        {
-            Debug.Log("Slammed");
-            Debug.Log($"Slam affected {colliders.Length} objects in radius {slamRadius}");
-        }
-
-        // Reset the slam state
-        isSlamActive = false;
+        return isGrounded;
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        // Check if the player collided with the ground
-        if (GameManager.Instance.isObjectGrounded(transform, groundCheckDistance))
-        {
-            // Apply the slam effect if it is active
-            if (isSlamActive)
-            {
-                ApplySlamEffect();
-            }
-        }
+        // Check if the player collided with the ground, add ground check distance
+        EventDispatcher.Raise<PlayerCollisionEvent>(new PlayerCollisionEvent() {
+            collision = collision,
+            groundCheckDistance = groundCheckDistance
+        });
+
     }
 
-    // Draw gizmos for the slam area in the editor
-    private void OnDrawGizmos()
+    public void AppendSkillBind(KeyCode keyCode)
     {
-        if (debug)
-        {
-            Gizmos.color = new Color(1, 0, 0, 0.3f); // Semi-transparent red
-            Gizmos.DrawSphere(transform.position, slamRadius); // Draw the slam effect radius
-        }
+        // Append the key code to the skill bindings array
+        Array.Resize(ref skillBindings, skillBindings.Length + 1);
+        skillBindings[skillBindings.Length - 1] = keyCode;
     }
+
+    public void RemoveSkillBind(KeyCode keyCode)
+    {
+        // Remove the key code from the skill bindings array
+        skillBindings = skillBindings.Where(val => val != keyCode).ToArray();
+    }
+
+    public KeyCode[] GetSkillBindings()
+    {
+        // Get the skill bindings array
+        return skillBindings;
+    }
+
 }

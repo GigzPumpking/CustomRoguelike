@@ -2,42 +2,52 @@ using UnityEngine;
 
 public class JumpSkill : Skill
 {
-    private Rigidbody playerRb; // The Rigidbody of the player
+    private Rigidbody playerRb; // Reference to the player's Rigidbody
     [SerializeField] private float jumpForce = 10.0f; // The force of the jump
-    [SerializeField] private bool debug = false; // Debug toggle
-
-    protected override void Start()
-    {
-        base.Start();
-
-        // Get the player's Rigidbody from the GameManager
-        GameObject player = GameManager.Instance.GetPlayer();
-
-        if (player != null)
-        {
-            playerRb = player.GetComponent<Rigidbody>();
-        }
-        else
-        {
-            Debug.LogError("Player object not found via GameManager.");
-        }
-    }
 
     protected override void ApplySkillEffect()
     {
-        if (playerRb != null)
-        {
-            // Add force to the player's Rigidbody upwards
-            playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        // Ensure player information is initialized
+        if (player == null) {
+            InitializePlayer();
+        } else if (playerRb == null) {
+            playerRb = player.GetComponent<Rigidbody>();
+        }
 
-            if (debug)
-            {
-                Debug.Log("JumpSkill activated: Jumped");
+        if (playerRb != null && playerScript != null)
+        {
+            if (playerScript.IsGrounded()) {
+                // Add force to the player's Rigidbody upwards
+                playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+
+                if (debug) // Use the debug field inherited from Skill
+                {
+                    Debug.Log("JumpSkill activated: Jumped");
+                }
+            } else {
+                if (debug) // Use the debug field inherited from Skill
+                {
+                    Debug.Log("JumpSkill activated: Player is not grounded.");
+                }
             }
         }
         else
         {
-            Debug.LogError("Player Rigidbody is not assigned.");
+            Debug.LogError("Player is not assigned.");
+        }
+    }
+
+    private void InitializePlayer()
+    {
+        player = GameManager.Instance.GetPlayer();
+        if (player != null)
+        {
+            playerRb = player.GetComponent<Rigidbody>();
+            playerScript = player.GetComponent<Player>();
+            if (debug)
+            {
+                Debug.Log("Player initialized in JumpSkill.");
+            }
         }
     }
 }

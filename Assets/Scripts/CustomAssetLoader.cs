@@ -107,4 +107,9 @@ public class CustomAssetLoader : MonoBehaviour
         // Log an error if neither component is found
         Debug.LogError("No SpriteRenderer or UI Image component found on this GameObject.");
     }
+
+    public void SetFileName(string newFileName)
+    {
+        fileName = newFileName;
+    }
 }

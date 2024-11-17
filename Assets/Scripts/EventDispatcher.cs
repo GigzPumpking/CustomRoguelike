@@ -8,9 +8,26 @@ public class Event
 
 }
 
+public class PlayerRegisteredEvent : Event
+{
+    public GameObject player;
+}
+
 public class SkillActivatedEvent : Event
 {
     public string skillName;
+}
+
+public class KeyPressEvent : Event
+{
+    public KeyCode keyCode;
+}
+
+public class PlayerCollisionEvent : Event
+{
+    public Collision collision;
+
+    public float groundCheckDistance = 0.65f;
 }
 
 public class EventDispatcher 

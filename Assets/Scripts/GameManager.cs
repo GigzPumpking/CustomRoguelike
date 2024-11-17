@@ -37,6 +37,16 @@ public class GameManager : MonoBehaviour
     public void RegisterPlayer(GameObject playerObject)
     {
         player = playerObject;
+
+        if (debug)
+        {
+            Debug.Log("Player registered.");
+        }
+
+        // Raise the PlayerRegistered event
+        EventDispatcher.Raise<PlayerRegisteredEvent>(new PlayerRegisteredEvent() {
+            player = playerObject
+        });
     }
 
     public GameObject GetPlayer()

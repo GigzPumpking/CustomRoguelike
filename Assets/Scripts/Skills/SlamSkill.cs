@@ -5,38 +5,45 @@ public class SlamSkill : Skill
     private Rigidbody playerRb; // Reference to the player's Rigidbody
     [SerializeField] private float slamForce = 30.0f; // The downward force of the slam
     [SerializeField] private float slamRadius = 5.0f; // The radius of the slam effect
-    [SerializeField] private bool debug = false; // Debug toggle
 
     private bool isSlamActive = false; // Indicates if the slam effect is waiting to be applied
 
-    protected override void Start()
+    protected override void OnEnable()
     {
-        base.Start();
+        base.OnEnable();
+        EventDispatcher.AddListener<PlayerCollisionEvent>(OnPlayerCollision);
+    }
 
-        // Get the player's Rigidbody from the GameManager
-        GameObject player = GameManager.Instance.GetPlayer();
-
-        if (player != null)
-        {
-            playerRb = player.GetComponent<Rigidbody>();
-        }
-        else
-        {
-            Debug.LogError("Player object not found via GameManager.");
-        }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        EventDispatcher.RemoveListener<PlayerCollisionEvent>(OnPlayerCollision);
     }
 
     protected override void ApplySkillEffect()
     {
-        if (playerRb != null)
-        {
-            // Apply a downward force to the player
-            playerRb.AddForce(Vector3.down * slamForce, ForceMode.Impulse);
-            isSlamActive = true;
+        // Ensure player information is initialized
+        if (player == null) {
+            InitializePlayer();
+        } else if (playerRb == null) {
+            playerRb = player.GetComponent<Rigidbody>();
+        }
 
-            if (debug)
+        if (playerRb != null && playerScript != null)
+        {
+            if (!playerScript.IsGrounded())
             {
-                Debug.Log("SlamSkill activated: Slam started");
+                // Apply a downward force to the player
+                playerRb.AddForce(Vector3.down * slamForce, ForceMode.Impulse);
+                isSlamActive = true;
+
+                if (debug)
+                {
+                    Debug.Log("SlamSkill activated: Slam started");
+                }
+            } else if (debug)
+            {
+                Debug.Log("SlamSkill activated: Player is grounded.");
             }
         }
         else
@@ -45,14 +52,31 @@ public class SlamSkill : Skill
         }
     }
 
-    public void OnPlayerCollision(Collision collision)
+    private void InitializePlayer()
     {
-        if (isSlamActive && playerRb != null)
+        player = GameManager.Instance.GetPlayer();
+        if (player != null)
+        {
+            playerRb = player.GetComponent<Rigidbody>();
+            playerScript = player.GetComponent<Player>();
+            if (debug)
+            {
+                Debug.Log("Player initialized in SlamSkill.");
+            }
+        }
+    }
+
+    public void OnPlayerCollision(PlayerCollisionEvent e)
+    {
+        if (isSlamActive && playerRb != null && playerScript != null)
         {
             // Check if the player collided with the ground
-            if (GameManager.Instance.isObjectGrounded(playerRb.transform, 0.65f))
+            if (playerScript.IsGrounded())
             {
                 ApplySlamEffect();
+            } else if (debug)
+            {
+                Debug.Log("SlamSkill: Player did not collide with the ground.");
             }
         }
     }
