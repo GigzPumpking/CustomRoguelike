@@ -71,6 +71,12 @@ public class Player : MonoBehaviour
         {
             Debug.DrawRay(transform.position, Vector3.down * groundCheckDistance, Color.red);
         }
+
+        // if below ground, reset player's y position
+        if (transform.position.y < -10)
+        {
+            transform.position = new Vector3(0, 1, 0);
+        }
     }
 
     void JumpAbility()
