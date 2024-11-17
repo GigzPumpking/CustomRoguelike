@@ -8,6 +8,11 @@ public class Event
 
 }
 
+public class SkillActivatedEvent : Event
+{
+    public string skillName;
+}
+
 public class EventDispatcher 
 {
     private static EventDispatcher _instance;

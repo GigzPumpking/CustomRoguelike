@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
     // Debugging
     [SerializeField] private bool debug = false;
 
+    private GameObject player;
+
     private void Awake()
     {
         // Check if an instance already exists
@@ -30,5 +32,15 @@ public class GameManager : MonoBehaviour
     {
         // Check if the object is grounded
         return Physics.Raycast(gameObject.position, Vector3.down, distance, groundLayer);
+    }
+
+    public void RegisterPlayer(GameObject playerObject)
+    {
+        player = playerObject;
+    }
+
+    public GameObject GetPlayer()
+    {
+        return player;
     }
 }

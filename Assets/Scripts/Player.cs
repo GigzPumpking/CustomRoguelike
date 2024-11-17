@@ -24,6 +24,9 @@ public class Player : MonoBehaviour
     {
         // Get the rigidbody component from the player object
         rb = GetComponent<Rigidbody>();
+
+        // Register the player object with the GameManager
+        GameManager.Instance.RegisterPlayer(gameObject);
     }
 
     void Update()
@@ -104,6 +107,10 @@ public class Player : MonoBehaviour
         {
             Debug.Log("Slam started");
         }
+
+        EventDispatcher.Raise<SkillActivatedEvent>(new SkillActivatedEvent() {
+            skillName = "Slam"
+        });
     }
 
     void ApplySlamEffect()
