@@ -55,6 +55,9 @@ public class CustomAssetLoader : MonoBehaviour
             else
             {
                 Debug.LogError($"Fallback file not found in Sprites folder: {fallbackFilePath}");
+                // Display a placeholder sprite or handle the missing sprite
+
+                LoadCustomSprite("Placeholder.png");
             }
         }
     }

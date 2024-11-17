@@ -5,7 +5,7 @@ public class JumpSkill : Skill
     private Rigidbody playerRb; // Reference to the player's Rigidbody
     [SerializeField] private float jumpForce = 10.0f; // The force of the jump
 
-    protected override void ApplySkillEffect()
+    protected override bool ApplySkillEffect()
     {
         // Ensure player information is initialized
         if (player == null) {
@@ -24,17 +24,25 @@ public class JumpSkill : Skill
                 {
                     Debug.Log("JumpSkill activated: Jumped");
                 }
+
+                return true;
             } else {
                 if (debug) // Use the debug field inherited from Skill
                 {
                     Debug.Log("JumpSkill activated: Player is not grounded.");
                 }
+
+                return false;
             }
         }
         else
         {
             Debug.LogError("Player is not assigned.");
+
+            return false;
         }
+
+        return false;
     }
 
     private void InitializePlayer()

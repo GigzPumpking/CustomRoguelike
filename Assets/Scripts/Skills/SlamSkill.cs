@@ -20,7 +20,7 @@ public class SlamSkill : Skill
         EventDispatcher.RemoveListener<PlayerCollisionEvent>(OnPlayerCollision);
     }
 
-    protected override void ApplySkillEffect()
+    protected override bool ApplySkillEffect()
     {
         // Ensure player information is initialized
         if (player == null) {
@@ -41,15 +41,22 @@ public class SlamSkill : Skill
                 {
                     Debug.Log("SlamSkill activated: Slam started");
                 }
-            } else if (debug)
+
+                return true;
+            } 
+            else if (debug)
             {
                 Debug.Log("SlamSkill activated: Player is grounded.");
+                return false;
             }
         }
         else
         {
             Debug.LogError("Player Rigidbody is not assigned.");
+            return false;
         }
+
+        return false;
     }
 
     private void InitializePlayer()

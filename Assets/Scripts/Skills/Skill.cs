@@ -6,6 +6,7 @@ public abstract class Skill : MonoBehaviour
 {
     public string skillName; // The name of the skill
     private KeyCode keyCode; // The key code to activate the skill
+    private TextMeshProUGUI keyCodeDisplay; // The text displaying the key code
     [SerializeField] private int skillIndex; // The index of the skill in the skill list
 
     private Image fill; // Black filter over the icon
@@ -51,9 +52,24 @@ public abstract class Skill : MonoBehaviour
         // Set the key code to the skill binding at the skill index if the skillbindings index is valid
         if (playerScript.GetSkillBindings().Length > skillIndex) {
             keyCode = playerScript.GetSkillBindings()[skillIndex];
+
+            // Set the key code display text to the key code
+            keyCodeDisplay.text = keyCode.ToString();
         } else if (debug) {
             Debug.LogError("Skill index is out of range.");
         }
+    }
+
+    protected virtual void Awake()
+    {
+        // Get the TextMeshProUGUI component from the child named "CooldownText"
+        cooldownText = transform.Find("Cooldown").GetComponent<TextMeshProUGUI>();
+
+        // Get the CustomAssetLoader script from the child named "Image"
+        customAssetLoader = transform.Find("Image").GetComponent<CustomAssetLoader>();
+
+        // Get the TextMeshProUGUI component from the child named "KeyCode"'s child Text
+        keyCodeDisplay = transform.Find("KeyCode").Find("Text").GetComponent<TextMeshProUGUI>();
     }
 
     protected virtual void Start()
@@ -66,14 +82,8 @@ public abstract class Skill : MonoBehaviour
             fill.enabled = false;
         }
 
-        // Get the TextMeshProUGUI component from the child named "CooldownText"
-        cooldownText = transform.Find("Cooldown").GetComponent<TextMeshProUGUI>();
-
         // Set the cooldown text to an empty string
         cooldownText.text = "";
-
-        // Get the CustomAssetLoader script from the child named "Image"
-        customAssetLoader = transform.Find("Image").GetComponent<CustomAssetLoader>();
 
         // Set the skill name of the CustomAssetLoader script to the skill name
         customAssetLoader.SetFileName(skillName + ".png");
@@ -104,7 +114,7 @@ public abstract class Skill : MonoBehaviour
                     fill.enabled = false;
                 }
 
-                // Clear the cooldown text
+                // Set the cooldown text to the key code
                 cooldownText.text = "";
             }
         }
@@ -146,7 +156,13 @@ public abstract class Skill : MonoBehaviour
             }
 
             // Call the abstract ApplySkillEffect method for derived classes to define behavior
-            ApplySkillEffect();
+            bool success = ApplySkillEffect();
+
+            if (!success)
+            {
+                // The skill effect failed, return
+                return;
+            }
 
             // Start the cooldown timer
             cooldownTimer = cooldown;
@@ -163,5 +179,5 @@ public abstract class Skill : MonoBehaviour
     }
 
     // Abstract method to be implemented by derived classes
-    protected abstract void ApplySkillEffect();
+    protected abstract bool ApplySkillEffect();
 }
