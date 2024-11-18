@@ -9,13 +9,16 @@ public class CustomAssetLoader : MonoBehaviour
     private string userAssetPath;
     private string fallbackAssetPath;
 
+    // List of supported image file extensions
+    private readonly string[] supportedImageExtensions = { ".png", ".jpg", ".jpeg" };
+
     void Awake()
     {
         // Define the runtime user assets folder path (outside Unity project)
         userAssetPath = Path.Combine(Application.dataPath, "../UserAssets");
 
-        // Define the fallback path inside Unity's Assets/Sprites folder
-        fallbackAssetPath = Path.Combine(Application.dataPath, "Sprites");
+        // Define the fallback path inside Unity's Assets/Resources/Sprites folder
+        fallbackAssetPath = Path.Combine(Application.dataPath, "Resources/Sprites");
 
         DebugMessage($"User assets folder path: {userAssetPath}");
         DebugMessage($"Fallback assets folder path: {fallbackAssetPath}");
@@ -28,15 +31,18 @@ public class CustomAssetLoader : MonoBehaviour
     {
         // Subscribe to the LoadCustomSpriteEvent
         EventDispatcher.AddListener<LoadCustomSpriteEvent>(OnLoadCustomSprite);
-
-        // Raise the FilePathsLoadedEvent
-        EventDispatcher.Raise<FilePathsLoadedEvent>(new FilePathsLoadedEvent());
     }
 
     void OnDisable()
     {
         // Unsubscribe from the LoadCustomSpriteEvent
         EventDispatcher.RemoveListener<LoadCustomSpriteEvent>(OnLoadCustomSprite);
+    }
+
+    void Start()
+    {
+        // Raise the FilePathsLoadedEvent
+        EventDispatcher.Raise<FilePathsLoadedEvent>(new FilePathsLoadedEvent());
     }
 
     void OnLoadCustomSprite(LoadCustomSpriteEvent e)
@@ -47,42 +53,47 @@ public class CustomAssetLoader : MonoBehaviour
 
     public void LoadCustomSprite(string fileName, GameObject target)
     {
-        if (userAssetPath != null) {
-            DebugMessage("User assets folder exists for file: " + fileName);
-        } else {
-            DebugMessage("User assets folder does not exist for file: " + fileName);
-        }
+        // Attempt to find the file in the UserAssets folder
+        string userFilePath = FindFileWithExtension(userAssetPath, fileName);
 
-        string userFilePath = Path.Combine(userAssetPath, fileName);
-
-        // Attempt to load the image from the UserAssets folder
-        if (File.Exists(userFilePath))
+        if (!string.IsNullOrEmpty(userFilePath))
         {
             DebugMessage($"File found in UserAssets folder: {userFilePath}");
-
             ApplySpriteFromFile(userFilePath, target);
         }
         else
         {
-            DebugMessage($"File not found in UserAssets folder: {userFilePath}");
+            DebugMessage($"File not found in UserAssets folder for: {fileName}");
 
-            // Fallback: Load from Resources/Sprites folder
-            string spritePath = Path.Combine("Sprites", Path.GetFileNameWithoutExtension(fileName));
-            Sprite fallbackSprite = Resources.Load<Sprite>(spritePath);
-
-            if (fallbackSprite != null)
+            // Fallback: Search for matching files in Resources/Sprites
+            foreach (string extension in supportedImageExtensions)
             {
-                DebugMessage($"Fallback sprite found in Resources: {spritePath}");
+                string spritePath = Path.Combine(fallbackAssetPath, fileName + extension);
 
-                ApplySprite(fallbackSprite, target);
+                if (File.Exists(spritePath))
+                {
+                    DebugMessage($"Fallback sprite found in Resources: {spritePath}");
+                    ApplySpriteFromFile(spritePath, target);
+                    return;
+                }
             }
-            else
-            {
-                DebugMessage($"Fallback sprite not found in Resources: {spritePath}");
-            }
+
+            ApplyPlaceholder(target, fileName);
         }
     }
 
+    private string FindFileWithExtension(string folderPath, string fileName)
+    {
+        foreach (string extension in supportedImageExtensions)
+        {
+            string filePath = Path.Combine(folderPath, fileName + extension);
+            if (File.Exists(filePath))
+            {
+                return filePath;
+            }
+        }
+        return null;
+    }
 
     void ApplySpriteFromFile(string filePath, GameObject target)
     {
@@ -106,6 +117,7 @@ public class CustomAssetLoader : MonoBehaviour
         else
         {
             DebugMessage($"Failed to load texture from file: {filePath}");
+            ApplyPlaceholder(target, Path.GetFileName(filePath));
         }
     }
 
@@ -139,7 +151,6 @@ public class CustomAssetLoader : MonoBehaviour
         DebugMessage("No SpriteRenderer or Image component found.", false);
     }
 
-    // Adjusts the scale of the SpriteRenderer to fit a consistent size
     void AdjustSpriteRendererSize(SpriteRenderer spriteRenderer, Vector2 desiredSize)
     {
         if (spriteRenderer.sprite == null) return;
@@ -158,6 +169,20 @@ public class CustomAssetLoader : MonoBehaviour
         DebugMessage($"SpriteRenderer resized to match desired size: {desiredSize}.", false);
     }
 
+    void ApplyPlaceholder(GameObject target, string fileName = "unknown file") {
+        // If no fallback sprite for fileName is found, find the Placeholder file in Resources and apply that instead IF it exists
+        string placeholderPath = Path.Combine(fallbackAssetPath, "Placeholder.png");
+
+        if (File.Exists(placeholderPath))
+        {
+            DebugMessage($"Fallback sprite not found for: {fileName}. Applying Placeholder sprite instead.");
+            ApplySpriteFromFile(placeholderPath, target);
+            return;
+        } else {
+            DebugMessage($"Fallback sprite not found in Resources for: {fileName}. No Placeholder sprite found.");
+            DebugMessage($"Placeholder sprite path: {placeholderPath}");
+        }
+    }
 
     void DebugMessage(string message, bool raiseEvent = true)
     {

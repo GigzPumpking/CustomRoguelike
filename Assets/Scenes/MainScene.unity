@@ -199,7 +199,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: fdfe29b48d1f3490fa81f456798547c1, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -207,7 +207,7 @@ SpriteRenderer:
   m_Size: {x: 1.28, y: 1.28}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &123765816
@@ -289,7 +289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa2b2691f5ec0473cbaa559099f7b097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: Placeholder.png
+  fileName: Player
 --- !u!1 &204207489
 GameObject:
   m_ObjectHideFlags: 0
@@ -421,7 +421,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4254105106532436895, guid: 5e4277f184fb94c2688ac3f1d0481614, type: 3}
       propertyPath: fileName
-      value: Dash.png
+      value: Dash
       objectReference: {fileID: 0}
     - target: {fileID: 7220483193877775980, guid: 5e4277f184fb94c2688ac3f1d0481614, type: 3}
       propertyPath: m_Sprite
@@ -1488,7 +1488,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4254105106532436895, guid: 5e4277f184fb94c2688ac3f1d0481614, type: 3}
       propertyPath: fileName
-      value: Slam.png
+      value: Slam
       objectReference: {fileID: 0}
     - target: {fileID: 5748441325293112575, guid: 5e4277f184fb94c2688ac3f1d0481614, type: 3}
       propertyPath: m_fontSize
@@ -1685,7 +1685,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: Jump
   skillIndex: 0
-  cooldown: 5
+  cooldown: 2
   debug: 0
   jumpForce: 10
 --- !u!1001 &6940348386532236610
@@ -1798,7 +1798,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4254105106532436895, guid: 5e4277f184fb94c2688ac3f1d0481614, type: 3}
       propertyPath: fileName
-      value: Jump.png
+      value: Jump
       objectReference: {fileID: 0}
     - target: {fileID: 5748441325293112575, guid: 5e4277f184fb94c2688ac3f1d0481614, type: 3}
       propertyPath: m_fontSize

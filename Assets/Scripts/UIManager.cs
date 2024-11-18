@@ -70,8 +70,6 @@ public class UIManager : MonoBehaviour
     }
 
     void OnDebugMessage(DebugMessageEvent e) {
-        Debug.Log("Debug message received: " + e.message);
-        // Set the debug message
         AppendDebugMessage(e.message);
     }
 }
