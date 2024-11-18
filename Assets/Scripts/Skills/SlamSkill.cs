@@ -36,6 +36,7 @@ public class SlamSkill : Skill
                 // Apply a downward force to the player
                 playerRb.AddForce(Vector3.down * slamForce, ForceMode.Impulse);
                 isSlamActive = true;
+                playerScript.SetInvulnerable(true);
 
                 if (debug)
                 {
@@ -75,16 +76,10 @@ public class SlamSkill : Skill
 
     public void OnPlayerCollision(PlayerCollisionEvent e)
     {
+        Debug.Log("SlamSkill: Player collided with an object.");
         if (isSlamActive && playerRb != null && playerScript != null)
         {
-            // Check if the player collided with the ground
-            if (playerScript.IsGrounded())
-            {
-                ApplySlamEffect();
-            } else if (debug)
-            {
-                Debug.Log("SlamSkill: Player did not collide with the ground.");
-            }
+            ApplySlamEffect();
         }
     }
 
@@ -111,6 +106,7 @@ public class SlamSkill : Skill
 
         // Reset slam state
         isSlamActive = false;
+        playerScript.SetInvulnerable(false);
     }
 
     private void OnDrawGizmos()

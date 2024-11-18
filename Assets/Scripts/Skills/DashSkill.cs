@@ -48,6 +48,7 @@ public class DashSkill : Skill
 
                 dashTimer = 0.0f;
                 isDashActive = true;
+                playerScript.SetInvulnerable(true);
 
                 if (debug)
                 {
@@ -90,6 +91,7 @@ public class DashSkill : Skill
             {
                 ApplyKnockbackEffect();
                 isDashActive = false;
+                playerScript.SetInvulnerable(false);
 
                 if (debug)
                 {
@@ -132,6 +134,7 @@ public class DashSkill : Skill
             if (dashTimer >= dashTimelimit)
             {
                 isDashActive = false;
+                playerScript.SetInvulnerable(false);
             }
         }
     }

@@ -12,6 +12,11 @@ public class Player : MonoBehaviour
     [SerializeField] private bool isGrounded;
     [SerializeField] private KeyCode[] skillBindings; // The key bindings for the skills
 
+    // Health
+    [SerializeField] private float health = 100f;
+
+    [SerializeField] private bool isInvulnerable = false;
+
     // Debugging
     [SerializeField] private bool debug = false;
 
@@ -93,6 +98,13 @@ public class Player : MonoBehaviour
         return isGrounded;
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        EventDispatcher.Raise<PlayerCollisionEvent>(new PlayerCollisionEvent() {
+            collision = collision
+        });
+    }
+
     public void AppendSkillBind(KeyCode keyCode)
     {
         // Append the key code to the skill bindings array
@@ -110,6 +122,56 @@ public class Player : MonoBehaviour
     {
         // Get the skill bindings array
         return skillBindings;
+    }
+
+    public void TakeDamage(float damage, float knockback = 0, Vector3 direction = default(Vector3))
+    {
+        if (isInvulnerable)
+        {
+            return;
+        }
+
+        // Reduce the health of the player object
+        health -= damage;
+
+        if (knockback > 0)
+        {
+            // Apply knockback to the player object
+            rb.AddForce(direction * knockback, ForceMode.Impulse);
+        }
+
+        // Debugging
+        if (debug)
+        {
+            Debug.Log("Player health: " + health);
+        }
+
+        // Check if the player object is dead
+        if (health <= 0)
+        {
+            health = 0;
+            // Raise event 
+        }
+    }
+
+    public float GetHealth()
+    {
+        return health;
+    }
+
+    public void SetHealth(float value)
+    {
+        health = value;
+    }
+
+    public void SetInvulnerable(bool value)
+    {
+        isInvulnerable = value;
+    }
+
+    public bool IsInvulnerable()
+    {
+        return isInvulnerable;
     }
 
 }

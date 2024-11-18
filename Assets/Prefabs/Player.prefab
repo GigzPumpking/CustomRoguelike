@@ -51,6 +51,8 @@ MonoBehaviour:
   groundCheckDistance: 0.65
   isGrounded: 0
   skillBindings: 200000002000000030010000
+  health: 100
+  isInvulnerable: 0
   debug: 0
 --- !u!54 &5493479463682171210
 Rigidbody:
@@ -190,7 +192,6 @@ GameObject:
   m_Component:
   - component: {fileID: 902766853437407936}
   - component: {fileID: 8599718829252140319}
-  - component: {fileID: 8634353283017411304}
   m_Layer: 0
   m_Name: Collider
   m_TagString: Player
@@ -236,16 +237,3 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8634353283017411304
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7544134331216827494}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 515332a28b39e484faac20c93d55f67d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isPlayer: 1
