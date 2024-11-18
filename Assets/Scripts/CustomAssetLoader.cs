@@ -67,6 +67,12 @@ public class CustomAssetLoader : MonoBehaviour
             // Load from Addressables
             string addressablePath = FindFileWithExtension(fallbackAssetPath, fileName);
 
+            if (string.IsNullOrEmpty(addressablePath))
+            {
+                ApplyPlaceholder(target, fileName);
+                return;
+            }
+
             Addressables.LoadAssetAsync<Sprite>(addressablePath).Completed += handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)

@@ -93,16 +93,6 @@ public class Player : MonoBehaviour
         return isGrounded;
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        // Check if the player collided with the ground, add ground check distance
-        EventDispatcher.Raise<PlayerCollisionEvent>(new PlayerCollisionEvent() {
-            collision = collision,
-            groundCheckDistance = groundCheckDistance
-        });
-
-    }
-
     public void AppendSkillBind(KeyCode keyCode)
     {
         // Append the key code to the skill bindings array

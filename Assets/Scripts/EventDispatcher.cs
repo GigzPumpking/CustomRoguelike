@@ -36,8 +36,6 @@ public class DebugMessageEvent : Event
 public class PlayerCollisionEvent : Event
 {
     public Collision collision;
-
-    public float groundCheckDistance = 0.65f;
 }
 
 public class LoadCustomSpriteEvent : Event

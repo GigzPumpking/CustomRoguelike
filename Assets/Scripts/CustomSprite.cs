@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CustomSprite : MonoBehaviour
 {
-    [SerializeField] private string fileName = "Placeholder.png";
+    [SerializeField] private string fileName = "Placeholder";
     void OnEnable() {
         // Subscribe to file paths loaded event
         EventDispatcher.AddListener<FilePathsLoadedEvent>(OnFilePathsLoaded);
