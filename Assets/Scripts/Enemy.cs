@@ -75,4 +75,14 @@ public class Enemy : MonoBehaviour
     {
         rb.AddForce(-transform.forward * recoilForce, ForceMode.Impulse);
     }
+
+    public void TakeDamage(float damage)
+    {
+        health -= damage;
+
+        if (health <= 0)
+        {
+            health = 0;
+        }
+    }
 }

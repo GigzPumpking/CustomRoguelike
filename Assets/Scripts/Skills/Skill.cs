@@ -171,6 +171,22 @@ public abstract class Skill : MonoBehaviour
         }
     }
 
+    // Add a damage enemy method to the skill class
+    protected void DamageEnemy(GameObject enemy, float damage)
+    {
+        Enemy e = enemy.GetComponent<Enemy>();
+
+        if (e == null)
+        {
+            e = enemy.GetComponentInParent<Enemy>();
+        }
+
+        if (e != null)
+        {
+            e.TakeDamage(damage);
+        }
+    }
+
     // Abstract method to be implemented by derived classes
     protected abstract bool ApplySkillEffect();
 }

@@ -4,6 +4,7 @@ public class DashSkill : Skill
 {
     private Rigidbody playerRb; // Reference to the player's Rigidbody
 
+    [SerializeField] private float damage = 10.0f; // The damage dealt
     [SerializeField] private float dashForce = 20.0f; // The force of the dash
     [SerializeField] private float knockbackForce = 15.0f; // Force applied to objects in range
     [SerializeField] private float knockbackRadius = 5.0f; // Radius of the knockback effect
@@ -13,6 +14,8 @@ public class DashSkill : Skill
     private float dashTimelimit = 1.0f; // Time limit for the dash
 
     private float dashTimer = 0.0f; // Timer for the dash
+
+    private float vulnerabilityDelay = 0.5f; // Delay before player can take damage after dash
 
     protected override void OnEnable()
     {
@@ -91,7 +94,7 @@ public class DashSkill : Skill
             {
                 ApplyKnockbackEffect();
                 isDashActive = false;
-                playerScript.SetInvulnerable(false);
+                Invoke(nameof(ResetInvulnerability), vulnerabilityDelay);
 
                 if (debug)
                 {
@@ -109,6 +112,13 @@ public class DashSkill : Skill
         foreach (Collider collider in colliders)
         {
             Rigidbody targetRb = collider.GetComponent<Rigidbody>();
+
+            // Check if the parent object has a Rigidbody if the collider does not
+            if (targetRb == null)
+            {
+                targetRb = collider.GetComponentInParent<Rigidbody>();
+            }
+
             if (targetRb != null && targetRb != playerRb)
             {
                 // Apply knockback force to nearby objects
@@ -118,6 +128,12 @@ public class DashSkill : Skill
                 if (debug)
                 {
                     Debug.Log($"DashSkill: Knockback applied to {collider.gameObject.name}.");
+                }
+
+                // If the object is an enemy, deal damage using its parent object's enemy script
+                if (collider.CompareTag("Enemy"))
+                {
+                    DamageEnemy(collider.gameObject, damage);
                 }
             }
         }
@@ -134,7 +150,7 @@ public class DashSkill : Skill
             if (dashTimer >= dashTimelimit)
             {
                 isDashActive = false;
-                playerScript.SetInvulnerable(false);
+                Invoke(nameof(ResetInvulnerability), vulnerabilityDelay);
             }
         }
     }
@@ -147,5 +163,10 @@ public class DashSkill : Skill
             Gizmos.color = new Color(0, 1, 0, 0.3f); // Semi-transparent green
             Gizmos.DrawSphere(playerRb != null ? playerRb.position : Vector3.zero, knockbackRadius);
         }
+    }
+
+    private void ResetInvulnerability()
+    {
+        playerScript.SetInvulnerable(false);
     }
 }
