@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
 
     // Health
     [SerializeField] private float health = 100f;
+    private HealthBar healthBar;
 
     [SerializeField] private bool isInvulnerable = false;
 
@@ -29,6 +30,19 @@ public class Player : MonoBehaviour
         GameManager.Instance.RegisterPlayer(gameObject);
 
         // Note: GameManager must be initialized before the player object
+    }
+
+    void Start()
+    {
+        if (healthBar == null)
+        {
+            healthBar = GetComponentInChildren<HealthBar>();
+        }
+
+        if (healthBar != null)
+        {
+            healthBar.SetMaxHealth(health);
+        }
     }
 
     void Update()
@@ -151,6 +165,11 @@ public class Player : MonoBehaviour
         {
             health = 0;
             // Raise event 
+        }
+
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(health);
         }
     }
 

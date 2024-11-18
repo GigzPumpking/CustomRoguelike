@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private float health = 100f; // The health of the enemy object
+
+    private HealthBar healthBar; // The health bar of the enemy object
 
     private Transform target; // The target object
 
@@ -39,6 +42,19 @@ public class Enemy : MonoBehaviour
     {
         // Get the rigidbody component from the enemy object
         rb = GetComponent<Rigidbody>();
+    }
+
+    void Start()
+    {
+        if (healthBar == null)
+        {
+            healthBar = GetComponentInChildren<HealthBar>();
+        }
+
+        if (healthBar != null)
+        {
+            healthBar.SetMaxHealth(health);
+        }
     }
 
     void Update()
@@ -83,6 +99,11 @@ public class Enemy : MonoBehaviour
         if (health <= 0)
         {
             health = 0;
+        }
+
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(health);
         }
     }
 }
