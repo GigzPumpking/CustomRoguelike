@@ -1,13 +1,15 @@
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class CustomAssetLoader : MonoBehaviour
 {
     [SerializeField] private bool debug = false; // Debug toggle for logs
 
     private string userAssetPath;
-    private string fallbackAssetPath;
+    private string fallbackAssetPath = "Assets/Sprites";
 
     // List of supported image file extensions
     private readonly string[] supportedImageExtensions = { ".png", ".jpg", ".jpeg" };
@@ -16,9 +18,6 @@ public class CustomAssetLoader : MonoBehaviour
     {
         // Define the runtime user assets folder path (outside Unity project)
         userAssetPath = Path.Combine(Application.dataPath, "../UserAssets");
-
-        // Define the fallback path inside Unity's Assets/Resources/Sprites folder
-        fallbackAssetPath = Path.Combine(Application.dataPath, "Resources/Sprites");
 
         DebugMessage($"User assets folder path: {userAssetPath}");
         DebugMessage($"Fallback assets folder path: {fallbackAssetPath}");
@@ -65,20 +64,21 @@ public class CustomAssetLoader : MonoBehaviour
         {
             DebugMessage($"File not found in UserAssets folder for: {fileName}");
 
-            // Fallback: Search for matching files in Resources/Sprites
-            foreach (string extension in supportedImageExtensions)
+            // Load from Addressables
+            string addressablePath = FindFileWithExtension(fallbackAssetPath, fileName);
+
+            Addressables.LoadAssetAsync<Sprite>(addressablePath).Completed += handle =>
             {
-                string spritePath = Path.Combine(fallbackAssetPath, fileName + extension);
-
-                if (File.Exists(spritePath))
+                if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
-                    DebugMessage($"Fallback sprite found in Resources: {spritePath}");
-                    ApplySpriteFromFile(spritePath, target);
-                    return;
+                    DebugMessage($"Fallback sprite loaded from Addressables: {addressablePath}");
+                    ApplySprite(handle.Result, target);
                 }
-            }
-
-            ApplyPlaceholder(target, fileName);
+                else
+                {
+                    ApplyPlaceholder(target, fileName);
+                }
+            };
         }
     }
 
@@ -170,18 +170,21 @@ public class CustomAssetLoader : MonoBehaviour
     }
 
     void ApplyPlaceholder(GameObject target, string fileName = "unknown file") {
-        // If no fallback sprite for fileName is found, find the Placeholder file in Resources and apply that instead IF it exists
-        string placeholderPath = Path.Combine(fallbackAssetPath, "Placeholder.png");
+        // Load from Addressables
+        string addressablePath = Path.Combine(fallbackAssetPath, "Placeholder.png");
 
-        if (File.Exists(placeholderPath))
+        Addressables.LoadAssetAsync<Sprite>(addressablePath).Completed += handle =>
         {
-            DebugMessage($"Fallback sprite not found for: {fileName}. Applying Placeholder sprite instead.");
-            ApplySpriteFromFile(placeholderPath, target);
-            return;
-        } else {
-            DebugMessage($"Fallback sprite not found in Resources for: {fileName}. No Placeholder sprite found.");
-            DebugMessage($"Placeholder sprite path: {placeholderPath}");
-        }
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                DebugMessage($"Unable to find file: {fileName}. Loading placeholder sprite from Addressables: {addressablePath}");
+                ApplySprite(handle.Result, target);
+            }
+            else
+            {
+                DebugMessage($"Unable to find file: {fileName}. Placeholder sprite not found in Addressables: {addressablePath}");
+            }
+        };
     }
 
     void DebugMessage(string message, bool raiseEvent = true)

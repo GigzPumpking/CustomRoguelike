@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: 
+  m_GroupName: Default Local Group
+  m_GUID: 37f0e89e2c5094214add4270608c117b
+  m_SerializeEntries:
+  - m_GUID: 56860a3ea703647d1b50b28340b2336b
+    m_Address: Assets/Sprites/Placeholder.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a7d721cd7d7ed462ba1dbc51c4010ea2
+    m_Address: Assets/Sprites/BlackSquare.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b6d838c0455a4453dbbb3e10d82221d3
+    m_Address: Assets/Sprites/Dash.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c2b7e80227ec548928fdfe38a7b77e9a
+    m_Address: Assets/Sprites/Jump.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ded6090d1ef65476784f908c3435d52b
+    m_Address: Assets/Sprites/Player.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb334252d40514898818212ea923dcf5
+    m_Address: Assets/Sprites/Slam.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fdfe29b48d1f3490fa81f456798547c1
+    m_Address: Assets/Sprites/Celeste.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: cdeba39969c63409eb9f9c6581415209, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: ae40ba0b0c9e449a9aaa602d80197b82, type: 2}
+    - {fileID: 11400000, guid: 5af2d3f75b18e48bd9f5646202eaa368, type: 2}
