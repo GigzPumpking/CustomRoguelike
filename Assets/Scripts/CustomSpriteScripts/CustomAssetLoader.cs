@@ -64,24 +64,33 @@ public class CustomAssetLoader : MonoBehaviour
         {
             DebugMessage($"File not found in UserAssets folder for: {fileName}");
 
-            // Load from Addressables
+            // Construct the addressable path
             string addressablePath = FindFileWithExtension(fallbackAssetPath, fileName);
 
-            if (string.IsNullOrEmpty(addressablePath))
+            // Check if the addressable path is valid
+            Addressables.LoadResourceLocationsAsync(addressablePath).Completed += handle =>
             {
-                ApplyPlaceholder(target, fileName);
-                return;
-            }
-
-            Addressables.LoadAssetAsync<Sprite>(addressablePath).Completed += handle =>
-            {
-                if (handle.Status == AsyncOperationStatus.Succeeded)
+                if (handle.Status == AsyncOperationStatus.Succeeded && handle.Result.Count > 0)
                 {
-                    DebugMessage($"Fallback sprite loaded from Addressables: {addressablePath}");
-                    ApplySprite(handle.Result, target);
+                    // The addressable path is valid, load the sprite
+                    Addressables.LoadAssetAsync<Sprite>(addressablePath).Completed += assetHandle =>
+                    {
+                        if (assetHandle.Status == AsyncOperationStatus.Succeeded)
+                        {
+                            DebugMessage($"Fallback sprite loaded from Addressables: {addressablePath}");
+                            ApplySprite(assetHandle.Result, target);
+                        }
+                        else
+                        {
+                            DebugMessage($"Failed to load fallback sprite from Addressables: {addressablePath}");
+                            ApplyPlaceholder(target, fileName);
+                        }
+                    };
                 }
                 else
                 {
+                    // The addressable path is invalid
+                    DebugMessage($"Addressable path not valid: {addressablePath}");
                     ApplyPlaceholder(target, fileName);
                 }
             };
