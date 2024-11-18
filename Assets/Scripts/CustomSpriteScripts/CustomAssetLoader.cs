@@ -102,10 +102,10 @@ public class CustomAssetLoader : MonoBehaviour
         foreach (string extension in supportedImageExtensions)
         {
             string filePath = Path.Combine(folderPath, fileName + extension);
-            if (File.Exists(filePath))
+            if (File.Exists(filePath) || folderPath == fallbackAssetPath)
             {
                 return filePath;
-            }
+            } 
         }
         return null;
     }

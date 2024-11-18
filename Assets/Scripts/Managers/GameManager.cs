@@ -58,6 +58,15 @@ public class GameManager : MonoBehaviour
         inputManager.RegisterKey(quitKey);
     }
 
+    void Start() {
+        // Call EnemyPool to spawn enemies in random locations
+        for (int i = 0; i < 10; i++)
+        {
+            Vector3 randomPosition = new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
+            EnemyPool.Instance.SpawnEnemy(randomPosition);
+        }
+    }
+
     public bool isObjectGrounded(Transform gameObject, float distance)
     {
         // Check if the object is grounded

@@ -7,6 +7,8 @@ public class Enemy : MonoBehaviour
 
     private HealthBar healthBar; // The health bar of the enemy object
 
+    [SerializeField] Animator animator; // The animator of the enemy object
+
     private Transform target; // The target object
 
     private Rigidbody rb; // The rigidbody of the enemy object
@@ -36,6 +38,11 @@ public class Enemy : MonoBehaviour
     void OnPlayerRegistered(PlayerRegisteredEvent e)
     {
         target = e.player.transform;
+    }
+
+    public void SetTarget(Transform target)
+    {
+        this.target = target;
     }
 
     void Awake()
@@ -99,11 +106,21 @@ public class Enemy : MonoBehaviour
         if (health <= 0)
         {
             health = 0;
+            Die();
         }
 
         if (healthBar != null)
         {
             healthBar.SetHealth(health);
         }
+    }
+
+    void Die()
+    {
+        EventDispatcher.Raise<EnemyDeathEvent>(new EnemyDeathEvent { enemy = this.gameObject });
+
+        if (ExplosionPool.Instance != null) ExplosionPool.Instance.Explode(transform.position + Vector3.up);
+
+        Destroy(gameObject);
     }
 }

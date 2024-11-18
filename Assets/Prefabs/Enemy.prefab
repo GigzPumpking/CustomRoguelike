@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 100
-  healthBar: {fileID: 7298786866214242162}
+  animator: {fileID: 0}
   speed: 5
   damage: 10
   selfRecoil: 1
@@ -237,7 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa2b2691f5ec0473cbaa559099f7b097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: Placeholder
+  fileName: Enemy
 --- !u!1001 &5180517180683377859
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -336,7 +336,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5655903452841566666, guid: 8658091c3829c45bfa3e8dd6e5183563, type: 3}
       propertyPath: m_Name
-      value: Canvas
+      value: EnemyUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 8906804469232480221, guid: 8658091c3829c45bfa3e8dd6e5183563, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -348,14 +352,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2226384564828262667, guid: 8658091c3829c45bfa3e8dd6e5183563, type: 3}
   m_PrefabInstance: {fileID: 5180517180683377859}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7298786866214242162 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2499105363380165553, guid: 8658091c3829c45bfa3e8dd6e5183563, type: 3}
-  m_PrefabInstance: {fileID: 5180517180683377859}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

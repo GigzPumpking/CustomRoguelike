@@ -49,6 +49,11 @@ public class FilePathsLoadedEvent : Event
 {
 }
 
+public class EnemyDeathEvent : Event
+{
+    public GameObject enemy;
+}
+
 public class EventDispatcher 
 {
     private static EventDispatcher _instance;
