@@ -9,7 +9,24 @@ public class GameManager : MonoBehaviour
     // Debugging
     [SerializeField] private bool debug = false;
 
+    // KeyCode for quitting the game
+    [SerializeField] private KeyCode quitKey = KeyCode.Q;
+
     private GameObject player;
+
+    private InputManager inputManager;
+
+    void OnEnable()
+    {
+        // Subscribe to the KeyPressEvent
+        EventDispatcher.AddListener<KeyPressEvent>(OnKeyPress);
+    }
+
+    void OnDisable()
+    {
+        // Unsubscribe from the KeyPressEvent
+        EventDispatcher.RemoveListener<KeyPressEvent>(OnKeyPress);
+    }
 
     private void Awake()
     {
@@ -26,6 +43,19 @@ public class GameManager : MonoBehaviour
 
         // Prevent this GameObject from being destroyed when loading new scenes
         DontDestroyOnLoad(gameObject);
+
+        // Set the input manager from this GameObject
+        inputManager = GetComponent<InputManager>();
+
+        // Initialize the InputManager if it doesn't exist
+        if (inputManager == null)
+        {
+            inputManager = gameObject.AddComponent<InputManager>();
+        }
+
+        // Register the quit key with the InputManager
+
+        inputManager.RegisterKey(quitKey);
     }
 
     public bool isObjectGrounded(Transform gameObject, float distance)
@@ -52,5 +82,21 @@ public class GameManager : MonoBehaviour
     public GameObject GetPlayer()
     {
         return player;
+    }
+
+    void OnKeyPress(KeyPressEvent e)
+    {
+        // Check if the quit key is pressed
+        if (e.keyCode == quitKey)
+        {
+            // Quit the game
+            Application.Quit();
+        }
+    }
+
+    public void RegisterKey(KeyCode keyCode)
+    {
+        // Register the key with the InputManager
+        inputManager.RegisterKey(keyCode);
     }
 }

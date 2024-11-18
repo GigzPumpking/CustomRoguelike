@@ -11,7 +11,6 @@ public abstract class Skill : MonoBehaviour
 
     private Image fill; // Black filter over the icon
     private TextMeshProUGUI cooldownText; // Text displaying the cooldown
-    private CustomAssetLoader customAssetLoader; // Reference to the CustomAssetLoader script
     [SerializeField] private float cooldown = 5.0f; // The cooldown of the skill
     private float cooldownTimer = 0.0f; // The timer for the skill cooldown
     private bool isOnCooldown = false; // Indicates if the skill is on cooldown
@@ -65,9 +64,6 @@ public abstract class Skill : MonoBehaviour
         // Get the TextMeshProUGUI component from the child named "CooldownText"
         cooldownText = transform.Find("Cooldown").GetComponent<TextMeshProUGUI>();
 
-        // Get the CustomAssetLoader script from the child named "Image"
-        customAssetLoader = transform.Find("Image").GetComponent<CustomAssetLoader>();
-
         // Get the TextMeshProUGUI component from the child named "KeyCode"'s child Text
         keyCodeDisplay = transform.Find("KeyCode").Find("Text").GetComponent<TextMeshProUGUI>();
     }
@@ -84,9 +80,6 @@ public abstract class Skill : MonoBehaviour
 
         // Set the cooldown text to an empty string
         cooldownText.text = "";
-
-        // Set the skill name of the CustomAssetLoader script to the skill name
-        customAssetLoader.SetFileName(skillName + ".png");
     }
 
     protected virtual void Update()

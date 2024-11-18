@@ -4,13 +4,12 @@ using UnityEngine.UI;
 
 public class CustomAssetLoader : MonoBehaviour
 {
-    [SerializeField] private string fileName = "Slam.png"; // Name of the file to load
     [SerializeField] private bool debug = false; // Debug toggle for logs
 
     private string userAssetPath;
     private string fallbackAssetPath;
 
-    void Start()
+    void Awake()
     {
         // Define the runtime user assets folder path (outside Unity project)
         userAssetPath = Path.Combine(Application.dataPath, "../UserAssets");
@@ -18,51 +17,74 @@ public class CustomAssetLoader : MonoBehaviour
         // Define the fallback path inside Unity's Assets/Sprites folder
         fallbackAssetPath = Path.Combine(Application.dataPath, "Sprites");
 
-        if (debug)
-        {
-            Debug.Log($"User assets folder path: {userAssetPath}");
-            Debug.Log($"Fallback assets folder path: {fallbackAssetPath}");
-        }
+        DebugMessage($"User assets folder path: {userAssetPath}");
+        DebugMessage($"Fallback assets folder path: {fallbackAssetPath}");
 
         // Ensure the runtime directory exists
-        Directory.CreateDirectory(userAssetPath);
-
-        // Try to load the custom sprite
-        LoadCustomSprite(fileName);
+        if (!Directory.Exists(userAssetPath)) Directory.CreateDirectory(userAssetPath);
     }
 
-    void LoadCustomSprite(string fileName)
+    void OnEnable()
     {
+        // Subscribe to the LoadCustomSpriteEvent
+        EventDispatcher.AddListener<LoadCustomSpriteEvent>(OnLoadCustomSprite);
+
+        // Raise the FilePathsLoadedEvent
+        EventDispatcher.Raise<FilePathsLoadedEvent>(new FilePathsLoadedEvent());
+    }
+
+    void OnDisable()
+    {
+        // Unsubscribe from the LoadCustomSpriteEvent
+        EventDispatcher.RemoveListener<LoadCustomSpriteEvent>(OnLoadCustomSprite);
+    }
+
+    void OnLoadCustomSprite(LoadCustomSpriteEvent e)
+    {
+        DebugMessage($"Loading custom sprite: {e.fileName}");
+        LoadCustomSprite(e.fileName, e.target);
+    }
+
+    public void LoadCustomSprite(string fileName, GameObject target)
+    {
+        if (userAssetPath != null) {
+            DebugMessage("User assets folder exists for file: " + fileName);
+        } else {
+            DebugMessage("User assets folder does not exist for file: " + fileName);
+        }
+
         string userFilePath = Path.Combine(userAssetPath, fileName);
 
         // Attempt to load the image from the UserAssets folder
         if (File.Exists(userFilePath))
         {
-            if (debug) Debug.Log($"File found in UserAssets folder: {userFilePath}");
-            ApplySpriteFromFile(userFilePath);
+            DebugMessage($"File found in UserAssets folder: {userFilePath}");
+
+            ApplySpriteFromFile(userFilePath, target);
         }
         else
         {
-            Debug.LogWarning($"File not found in UserAssets folder: {userFilePath}");
-            
-            // Fallback: Attempt to load from Unity's Assets/Sprites folder
-            string fallbackFilePath = Path.Combine(fallbackAssetPath, fileName);
-            if (File.Exists(fallbackFilePath))
+            DebugMessage($"File not found in UserAssets folder: {userFilePath}");
+
+            // Fallback: Load from Resources/Sprites folder
+            string spritePath = Path.Combine("Sprites", Path.GetFileNameWithoutExtension(fileName));
+            Sprite fallbackSprite = Resources.Load<Sprite>(spritePath);
+
+            if (fallbackSprite != null)
             {
-                if (debug) Debug.Log($"File found in fallback Sprites folder: {fallbackFilePath}");
-                ApplySpriteFromFile(fallbackFilePath);
+                DebugMessage($"Fallback sprite found in Resources: {spritePath}");
+
+                ApplySprite(fallbackSprite, target);
             }
             else
             {
-                Debug.LogError($"Fallback file not found in Sprites folder: {fallbackFilePath}");
-                // Display a placeholder sprite or handle the missing sprite
-
-                LoadCustomSprite("Placeholder.png");
+                DebugMessage($"Fallback sprite not found in Resources: {spritePath}");
             }
         }
     }
 
-    void ApplySpriteFromFile(string filePath)
+
+    void ApplySpriteFromFile(string filePath, GameObject target)
     {
         // Load the file data into a byte array
         byte[] fileData = File.ReadAllBytes(filePath);
@@ -79,40 +101,71 @@ public class CustomAssetLoader : MonoBehaviour
             );
 
             // Apply the sprite to the appropriate component
-            ApplySprite(customSprite);
+            ApplySprite(customSprite, target);
         }
         else
         {
-            Debug.LogError($"Failed to load texture from file: {filePath}");
+            DebugMessage($"Failed to load texture from file: {filePath}");
         }
     }
 
-    void ApplySprite(Sprite sprite)
+    void ApplySprite(Sprite sprite, GameObject target)
     {
         // Check if the GameObject has a SpriteRenderer component
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        SpriteRenderer spriteRenderer = target.GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
-            if (debug) Debug.Log("Applying sprite to SpriteRenderer.");
+            DebugMessage("Applying sprite to SpriteRenderer.", false);
             spriteRenderer.sprite = sprite;
+
+            // Adjust scale to ensure consistent size
+            Vector2 desiredSize = new Vector2(1, 1); // Adjust to your consistent size
+            AdjustSpriteRendererSize(spriteRenderer, desiredSize);
+
             return;
         }
 
         // Check if the GameObject has a UI Image component
-        Image targetImage = GetComponent<Image>();
+        Image targetImage = target.GetComponent<Image>();
         if (targetImage != null)
         {
-            if (debug) Debug.Log("Applying sprite to UI Image.");
+            DebugMessage("Applying sprite to Image component.", false);
             targetImage.sprite = sprite;
+
+            // UI Images handle sizing automatically, no adjustment needed
             return;
         }
 
-        // Log an error if neither component is found
-        Debug.LogError("No SpriteRenderer or UI Image component found on this GameObject.");
+        DebugMessage("No SpriteRenderer or Image component found.", false);
     }
 
-    public void SetFileName(string newFileName)
+    // Adjusts the scale of the SpriteRenderer to fit a consistent size
+    void AdjustSpriteRendererSize(SpriteRenderer spriteRenderer, Vector2 desiredSize)
     {
-        fileName = newFileName;
+        if (spriteRenderer.sprite == null) return;
+
+        // Get the current sprite's size in world units
+        Vector2 spriteSize = spriteRenderer.sprite.bounds.size;
+
+        // Calculate the scale needed to match the desired size
+        Vector3 newScale = spriteRenderer.transform.localScale;
+        newScale.x = desiredSize.x / spriteSize.x;
+        newScale.y = desiredSize.y / spriteSize.y;
+
+        // Apply the new scale to the SpriteRenderer's GameObject
+        spriteRenderer.transform.localScale = newScale;
+
+        DebugMessage($"SpriteRenderer resized to match desired size: {desiredSize}.", false);
+    }
+
+
+    void DebugMessage(string message, bool raiseEvent = true)
+    {
+        if (debug) Debug.Log(message);
+
+        EventDispatcher.Raise<DebugMessageEvent>(new DebugMessageEvent()
+        {
+            message = message
+        });
     }
 }

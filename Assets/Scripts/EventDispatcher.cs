@@ -23,11 +23,32 @@ public class KeyPressEvent : Event
     public KeyCode keyCode;
 }
 
+public class AddKeybindEvent : Event
+{
+    public KeyCode keyCode;
+}
+
+public class DebugMessageEvent : Event
+{
+    public string message;
+}
+
 public class PlayerCollisionEvent : Event
 {
     public Collision collision;
 
     public float groundCheckDistance = 0.65f;
+}
+
+public class LoadCustomSpriteEvent : Event
+{
+    public string fileName;
+
+    public GameObject target;
+}
+
+public class FilePathsLoadedEvent : Event
+{
 }
 
 public class EventDispatcher 

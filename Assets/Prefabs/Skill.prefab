@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7055709381094568908}
   - component: {fileID: 2515228531051095988}
   - component: {fileID: 7220483193877775980}
-  - component: {fileID: 1033910582623040795}
+  - component: {fileID: 4254105106532436895}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1033910582623040795
+--- !u!114 &4254105106532436895
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,11 +85,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 536196584103718208}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5584e407a141d426f863cbd919e4b035, type: 3}
+  m_Script: {fileID: 11500000, guid: fa2b2691f5ec0473cbaa559099f7b097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: Slam.png
-  debug: 0
+  fileName: Placeholder.png
 --- !u!1 &2593040532773189217
 GameObject:
   m_ObjectHideFlags: 0
