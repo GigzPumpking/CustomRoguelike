@@ -8,11 +8,15 @@ public class UIManager : MonoBehaviour
 {
     private GameObject debugger; // Reference to the debugger panel
 
+    private GameObject devmode; // Reference to the devmode panel
+
     private TextMeshProUGUI debugText; // Reference to the debug text
 
     private string debugMessage = "Debug Log"; // Default debug message
 
     [SerializeField] private KeyCode debugToggleKey = KeyCode.BackQuote; // Default debug toggle key
+
+    [SerializeField] private GameObject SpawnEnemyUIPrefab; // Reference to the SpawnEnemyUI prefab
     
 
     void OnEnable() {
@@ -41,7 +45,28 @@ public class UIManager : MonoBehaviour
 
         debugger.SetActive(false);
 
+        // Find the devmode panel in children
+        devmode = transform.Find("DevMode").gameObject;
+
         GameManager.Instance.RegisterKey(debugToggleKey);
+
+        // Check if the devmode panel exists
+        if (GameManager.Instance.isDevmode() && devmode != null && SpawnEnemyUIPrefab != null) {
+            // Loop through GameManager's spawnEnemyKeys and instantiate a SpawnEnemyUI for each key
+            KeyCode[] spawnEnemyKeys = GameManager.Instance.GetSpawnEnemyKeys();
+            for (int i = 0; i < spawnEnemyKeys.Length; i++) {
+                Enemy enemy = EnemyPool.Instance.GetPrefab(i);
+                if (enemy == null) {
+                    Debug.LogError("Enemy prefab not found for key: " + spawnEnemyKeys[i]);
+                    continue;
+                }
+                GameObject spawnEnemyUI = Instantiate(SpawnEnemyUIPrefab, devmode.transform);
+                spawnEnemyUI.GetComponent<SpawnEnemyUI>().setEnemy(enemy, spawnEnemyKeys[i]);
+                // Move up by 400 units and right by 200 units for each new SpawnEnemyUI
+                spawnEnemyUI.transform.localPosition = new Vector3(200 * i, 400, 0);
+            }
+        }
+
     }
 
     // Update is called once per frame

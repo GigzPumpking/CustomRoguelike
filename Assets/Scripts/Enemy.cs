@@ -5,6 +5,8 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour, IPoolable<Enemy>
 {
+    [SerializeField] private string name = "Enemy"; // The name of the enemy object
+    [SerializeField] private string filename = "Enemy"; // The filename of the enemy object's sprite
     [SerializeField] private float health = 100f; // The health of the enemy object
 
     private HealthBar healthBar; // The health bar of the enemy object
@@ -176,6 +178,16 @@ public class Enemy : MonoBehaviour, IPoolable<Enemy>
     public Enemy GetPrefab()
     {
         return prefab;
+    }
+
+    public string GetFilename()
+    {
+        return filename;
+    }
+
+    public string GetName()
+    {
+        return name;
     }
 
     void Die()

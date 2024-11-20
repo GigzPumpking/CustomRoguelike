@@ -9,8 +9,16 @@ public class GameManager : MonoBehaviour
     // Debugging
     [SerializeField] private bool debug = false;
 
+    // Devmode
+
+    [SerializeField] private bool devmode = false;
+
+    [SerializeField] private bool SpawnOnLoad = true;
+
     // KeyCode for quitting the game
     [SerializeField] private KeyCode quitKey = KeyCode.Q;
+
+    [SerializeField] private KeyCode[] spawnEnemyKeys = { KeyCode.Alpha1 };
 
     private GameObject player;
 
@@ -59,15 +67,25 @@ public class GameManager : MonoBehaviour
 
         inputManager.RegisterKey(quitKey);
 
+        // Register the spawn enemy keys with the InputManager
+        foreach (KeyCode keyCode in spawnEnemyKeys)
+        {
+            inputManager.RegisterKey(keyCode);
+        }
+
         enemyPool = GetComponent<EnemyPool>();
     }
 
     void Start() {
-        // Call EnemyPool to spawn enemies in random locations
-        for (int i = 0; i < 10; i++)
+
+        if (SpawnOnLoad)
         {
-            Vector3 randomPosition = new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
-            EnemyPool.Instance.SpawnEnemy(0, randomPosition);
+            // Call EnemyPool to spawn enemies in random locations
+            for (int i = 0; i < 10; i++)
+            {
+                Vector3 randomPosition = new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
+                EnemyPool.Instance.SpawnEnemy(0, randomPosition);
+            }
         }
     }
 
@@ -104,6 +122,22 @@ public class GameManager : MonoBehaviour
         {
             // Quit the game
             Application.Quit();
+            return;
+        }
+
+        if (devmode) {
+            // Check if the spawn enemy keys are pressed
+            foreach (KeyCode keyCode in spawnEnemyKeys)
+            {
+                if (e.keyCode == keyCode)
+                {
+                    // Spawn an enemy at a random location
+                    Vector3 randomPosition = new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
+                    // Spawn an enemy based on the index of the key code in the spawnEnemyKeys array
+                    enemyPool.SpawnEnemy(keyCode - spawnEnemyKeys[0], randomPosition);
+                    return;
+                }
+            }
         }
     }
 
@@ -111,5 +145,15 @@ public class GameManager : MonoBehaviour
     {
         // Register the key with the InputManager
         inputManager.RegisterKey(keyCode);
+    }
+
+    public KeyCode[] GetSpawnEnemyKeys()
+    {
+        return spawnEnemyKeys;
+    }
+
+    public bool isDevmode()
+    {
+        return devmode;
     }
 }

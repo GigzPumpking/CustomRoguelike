@@ -115,6 +115,22 @@ public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolab
     }
 
     /// <summary>
+    /// Gets a prefab from the poolSettingsList.
+    /// </summary>
+    /// <param name="index">The index of the prefab to get from the poolSettingsList.</param>
+    public T GetPrefab(int index)
+    {
+        if (index < 0 || index >= poolSettingsList.Count)
+        {
+            Debug.LogError($"Index {index} is out of range.");
+            return null;
+        }
+
+        // Just get the prefab without instantiating it from the poolSettingsList
+        return poolSettingsList[index].prefab;
+    }
+
+    /// <summary>
     /// Returns an object to the pool associated with its prefab.
     /// </summary>
     /// <param name="prefab">The prefab type of the object.</param>
@@ -130,5 +146,13 @@ public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolab
 
         objectToReturn.gameObject.SetActive(false);
         pools[prefab].Enqueue(objectToReturn);
+    }
+
+    /// <summary>
+    /// Returns length of the poolSettingsList.
+    /// </summary>
+    public int GetPoolLength()
+    {
+        return poolSettingsList.Count;
     }
 }
