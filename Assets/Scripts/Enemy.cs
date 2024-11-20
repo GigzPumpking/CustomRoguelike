@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UI;
+using System.Collections;
 
 public class Enemy : MonoBehaviour
 {
@@ -11,8 +13,6 @@ public class Enemy : MonoBehaviour
 
     private Transform target; // The target object
 
-    private Rigidbody rb; // The rigidbody of the enemy object
-
     [SerializeField] private float speed = 5f; // The speed of the enemy object
 
     [SerializeField] private float damage = 10f; // The damage dealt to the player
@@ -22,6 +22,14 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float recoilForce = 10f; // The force applied to the enemy when it collides with the player
 
     [SerializeField] private float knockback = 10f; // The force applied to the player when it collides with the enemy
+
+    private float knockbackRecoveryTime = 10f; // The maximum time it takes for the player to recover from knockback
+
+    private float stillThreshold = 0.1f; // The threshold for the player to be considered still
+
+    private bool canMove = true; // Whether the enemy can move
+
+    private Rigidbody rb; // The rigidbody of the enemy object
 
     void OnEnable()
     {
@@ -37,17 +45,17 @@ public class Enemy : MonoBehaviour
 
     void OnPlayerRegistered(PlayerRegisteredEvent e)
     {
-        target = e.player.transform;
+        SetTarget(e.player.transform);
     }
 
-    public void SetTarget(Transform target)
+    public void SetTarget(Transform newTarget)
     {
-        this.target = target;
+        target = newTarget;
     }
 
     void Awake()
     {
-        // Get the rigidbody component from the enemy object
+        // Get the Rigidbody component
         rb = GetComponent<Rigidbody>();
     }
 
@@ -66,7 +74,12 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if (target == null)
+        MoveTowardsTarget();
+    }
+
+    void MoveTowardsTarget()
+    {
+        if (target == null || !canMove)
         {
             return;
         }
@@ -85,18 +98,26 @@ public class Enemy : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             // Damage the player
-            collision.gameObject.GetComponent<Player>().TakeDamage(damage, knockback, transform.forward);
+            collision.gameObject.GetComponent<Player>().TakeDamage(damage);
+            collision.gameObject.GetComponent<Player>().TakeKnockback(knockback, transform.forward);
 
             if (selfRecoil)
             {
-                Recoil();
+                TakeKnockback(recoilForce, -transform.forward);
             }
         }
     }
 
-    void Recoil()
-    {
-        rb.AddForce(-transform.forward * recoilForce, ForceMode.Impulse);
+    public void DisableRigidbody() {
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.useGravity = false;
+        rb.isKinematic = true;
+    }
+
+    public void EnableRigidbody() {
+        rb.useGravity = true;
+        rb.isKinematic = false;
     }
 
     public void TakeDamage(float damage)
@@ -115,11 +136,39 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public void TakeKnockback(float knockback, Vector3 direction)
+    {
+        if (rb != null)
+        {
+            rb.AddForce(direction * knockback, ForceMode.Impulse);
+            canMove = false;
+
+            // Start a coroutine to recover from knockback
+            StartCoroutine(RecoverFromKnockback());
+        }
+    }
+
+    IEnumerator RecoverFromKnockback()
+    {
+        // Wait for maximum recovery time or until the enemy is still
+        float timer = 0f;
+        while (timer < knockbackRecoveryTime && rb.linearVelocity.magnitude > stillThreshold)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        canMove = true;
+    }
+
     void Die()
     {
         EventDispatcher.Raise<EnemyDeathEvent>(new EnemyDeathEvent { enemy = this.gameObject });
 
-        if (ExplosionPool.Instance != null) ExplosionPool.Instance.Explode(transform.position + Vector3.up);
+        if (ExplosionPool.Instance != null)
+        {
+            ExplosionPool.Instance.Explode(transform.position + Vector3.up);
+        }
 
         Destroy(gameObject);
     }

@@ -123,7 +123,6 @@ public class DashSkill : Skill
             {
                 // Apply knockback force to nearby objects
                 Vector3 knockbackDirection = (collider.transform.position - player.transform.position).normalized;
-                targetRb.AddForce(knockbackDirection * knockbackForce, ForceMode.Impulse);
 
                 if (debug)
                 {
@@ -133,7 +132,10 @@ public class DashSkill : Skill
                 // If the object is an enemy, deal damage using its parent object's enemy script
                 if (collider.CompareTag("Enemy"))
                 {
-                    DamageEnemy(collider.gameObject, damage);
+                    DamageAndKnockbackEnemy(collider.gameObject, damage, knockbackForce, knockbackDirection);
+                } else {
+                    // If the object is not an enemy, apply knockback to the object
+                    targetRb.AddForce(knockbackDirection * knockbackForce, ForceMode.Impulse);
                 }
             }
         }

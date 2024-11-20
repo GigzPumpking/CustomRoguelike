@@ -138,7 +138,7 @@ public class Player : MonoBehaviour
         return skillBindings;
     }
 
-    public void TakeDamage(float damage, float knockback = 0, Vector3 direction = default(Vector3))
+    public void TakeDamage(float damage)
     {
         if (isInvulnerable)
         {
@@ -147,12 +147,6 @@ public class Player : MonoBehaviour
 
         // Reduce the health of the player object
         health -= damage;
-
-        if (knockback > 0)
-        {
-            // Apply knockback to the player object
-            rb.AddForce(direction * knockback, ForceMode.Impulse);
-        }
 
         // Debugging
         if (debug)
@@ -171,6 +165,17 @@ public class Player : MonoBehaviour
         {
             healthBar.SetHealth(health);
         }
+    }
+
+    public void TakeKnockback(float knockback, Vector3 direction)
+    {
+        if (direction == default(Vector3))
+        {
+            direction = -transform.forward;
+        }
+
+        // Apply knockback to the player object
+        rb.AddForce(direction * knockback, ForceMode.Impulse);
     }
 
     public float GetHealth()

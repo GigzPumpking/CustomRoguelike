@@ -170,8 +170,7 @@ public abstract class Skill : MonoBehaviour
             }
         }
     }
-
-    // Add a damage enemy method to the skill class
+    
     protected void DamageEnemy(GameObject enemy, float damage)
     {
         Enemy e = enemy.GetComponent<Enemy>();
@@ -184,6 +183,37 @@ public abstract class Skill : MonoBehaviour
         if (e != null)
         {
             e.TakeDamage(damage);
+        }
+    }
+
+    protected void KnockbackEnemy(GameObject enemy, float knockback, Vector3 direction)
+    {
+        Enemy e = enemy.GetComponent<Enemy>();
+
+        if (e == null)
+        {
+            e = enemy.GetComponentInParent<Enemy>();
+        }
+
+        if (e != null)
+        {
+            e.TakeKnockback(knockback, direction);
+        }
+    }
+
+    protected void DamageAndKnockbackEnemy(GameObject enemy, float damage, float knockback, Vector3 direction)
+    {
+        Enemy e = enemy.GetComponent<Enemy>();
+
+        if (e == null)
+        {
+            e = enemy.GetComponentInParent<Enemy>();
+        }
+
+        if (e != null)
+        {
+            e.TakeDamage(damage);
+            e.TakeKnockback(knockback, direction);
         }
     }
 

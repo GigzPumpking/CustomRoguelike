@@ -103,11 +103,13 @@ public class SlamSkill : Skill
 
             if (targetRb != null && targetRb != playerRb)
             {
-                // Add force to nearby objects
-                targetRb.AddForce(Vector3.up * (slamForce / 2), ForceMode.Impulse);
-
-                // Damage the enemy
-                DamageEnemy(collider.gameObject, damage);
+                if (collider.CompareTag("Enemy"))
+                {
+                    DamageAndKnockbackEnemy(collider.gameObject, damage, slamForce, Vector3.up);
+                } else {
+                    // Apply knockback force to nearby objects
+                    targetRb.AddForce(Vector3.up * (slamForce / 2), ForceMode.Impulse);
+                }
             }
         }
 
