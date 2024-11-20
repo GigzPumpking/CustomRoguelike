@@ -1355,8 +1355,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72f6ce024adb6419e835691ef38d509d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1213478287529308940, guid: 7138c294f895b451386be6afc578004d, type: 3}
-  initialPoolSize: 10
+  poolSettingsList:
+  - prefab: {fileID: 1213478287529308940, guid: 7138c294f895b451386be6afc578004d, type: 3}
+    initialSize: 10
   expandPool: 1
 --- !u!114 &1672782773
 MonoBehaviour:
@@ -1370,8 +1371,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dda1f4ae9bff4da4a2073eb9eeb0ed3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5836143670220771368, guid: c0c43bf5c05ae46a6952f1bbb952c4fe, type: 3}
-  initialPoolSize: 10
+  poolSettingsList:
+  - prefab: {fileID: 5836143670220771368, guid: c0c43bf5c05ae46a6952f1bbb952c4fe, type: 3}
+    initialSize: 10
   expandPool: 1
 --- !u!1 &1747035273
 GameObject:

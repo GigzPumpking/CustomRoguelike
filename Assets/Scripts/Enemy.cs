@@ -3,13 +3,15 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 using System.Collections;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IPoolable<Enemy>
 {
     [SerializeField] private float health = 100f; // The health of the enemy object
 
     private HealthBar healthBar; // The health bar of the enemy object
 
     [SerializeField] Animator animator; // The animator of the enemy object
+
+    private Enemy prefab; // The prefab of the enemy object
 
     private Transform target; // The target object
 
@@ -30,6 +32,8 @@ public class Enemy : MonoBehaviour
     private bool canMove = true; // Whether the enemy can move
 
     private Rigidbody rb; // The rigidbody of the enemy object
+
+    [SerializeField] private Explosion explosion; // The explosion object
 
     void OnEnable()
     {
@@ -143,8 +147,11 @@ public class Enemy : MonoBehaviour
             rb.AddForce(direction * knockback, ForceMode.Impulse);
             canMove = false;
 
-            // Start a coroutine to recover from knockback
-            StartCoroutine(RecoverFromKnockback());
+            if (health > 0)
+            {
+                // Start a coroutine to recover from knockback
+                StartCoroutine(RecoverFromKnockback());
+            }
         }
     }
 
@@ -161,15 +168,30 @@ public class Enemy : MonoBehaviour
         canMove = true;
     }
 
+    public void SetPrefab(Enemy prefab)
+    {
+        this.prefab = prefab;
+    }
+
+    public Enemy GetPrefab()
+    {
+        return prefab;
+    }
+
     void Die()
     {
         EventDispatcher.Raise<EnemyDeathEvent>(new EnemyDeathEvent { enemy = this.gameObject });
 
         if (ExplosionPool.Instance != null)
         {
-            ExplosionPool.Instance.Explode(transform.position + Vector3.up);
+            if (explosion == null)
+            {
+                explosion = ExplosionPool.Instance.GetObject(0, Vector3.zero, Quaternion.identity);
+            }
+
+            ExplosionPool.Instance.Explode(explosion, transform.position + Vector3.up);
         }
 
-        Destroy(gameObject);
+        EnemyPool.Instance.ReturnObject(prefab, this);
     }
 }

@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
 
     private InputManager inputManager;
 
+    private EnemyPool enemyPool;
+
     void OnEnable()
     {
         // Subscribe to the KeyPressEvent
@@ -56,6 +58,8 @@ public class GameManager : MonoBehaviour
         // Register the quit key with the InputManager
 
         inputManager.RegisterKey(quitKey);
+
+        enemyPool = GetComponent<EnemyPool>();
     }
 
     void Start() {
@@ -63,7 +67,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < 10; i++)
         {
             Vector3 randomPosition = new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
-            EnemyPool.Instance.SpawnEnemy(randomPosition);
+            EnemyPool.Instance.SpawnEnemy(0, randomPosition);
         }
     }
 

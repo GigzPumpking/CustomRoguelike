@@ -10,9 +10,18 @@ public class ExplosionPool : ObjectPool<Explosion>
         Instance = this;
     }
 
-    public void Explode(Vector3 position)
+    /// <summary>
+    /// Spawns an explosion of a specific type at a given position.
+    /// </summary>
+    /// <param name="prefab">The explosion prefab to spawn.</param>
+    /// <param name="position">The position to spawn the explosion.</param>
+    public void Explode(Explosion prefab, Vector3 position)
     {
-        Explosion explosion = GetObject(position, Quaternion.identity);
-        explosion.gameObject.SetActive(true);
+        Explosion explosion = GetObject(prefab, position, Quaternion.identity);
+        if (explosion != null)
+        {
+            explosion.gameObject.SetActive(true);
+            explosion.Trigger(); // Ensure the explosion behaves as expected (e.g., animation, sound, etc.)
+        }
     }
 }

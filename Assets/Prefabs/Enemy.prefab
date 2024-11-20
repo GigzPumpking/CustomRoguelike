@@ -137,6 +137,7 @@ MonoBehaviour:
   selfRecoil: 1
   recoilForce: 10
   knockback: 5
+  explosion: {fileID: 1213478287529308940, guid: 7138c294f895b451386be6afc578004d, type: 3}
 --- !u!1 &7953419687092768511
 GameObject:
   m_ObjectHideFlags: 0
