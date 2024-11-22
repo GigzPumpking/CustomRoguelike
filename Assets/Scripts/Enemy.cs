@@ -1,51 +1,91 @@
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.UI;
 using System.Collections;
 
-public class Enemy : MonoBehaviour, IPoolable<Enemy>
+public abstract class Enemy : MonoBehaviour, IPoolable<Enemy>
 {
-    [SerializeField] private string name = "Enemy"; // The name of the enemy object
-    [SerializeField] private string filename = "Enemy"; // The filename of the enemy object's sprite
-    [SerializeField] private float health = 100f; // The health of the enemy object
+    [SerializeField] private string name = "Enemy"; // Name of the enemy
+    [SerializeField] private string filename = "Enemy"; // Filename for enemy resources
+    private CustomSprite customSprite;
 
-    private HealthBar healthBar; // The health bar of the enemy object
+    [SerializeField] private float maxHealth = 100f; // Maximum health of the enemy
+    [SerializeField] private float health = 100f;   // Current health of the enemy
+    [SerializeField] private float speed = 5f;      // Movement speed of the enemy
+    [SerializeField] private float damage = 10f;    // Damage dealt by the enemy
+    [SerializeField] private float recoilForce = 10f;  // Recoil force on the enemy
+    [SerializeField] private float knockback = 10f;    // Knockback force on the player
 
-    [SerializeField] Animator animator; // The animator of the enemy object
+    private HealthBar healthBar;
+    private Animator animator;
 
-    private Enemy prefab; // The prefab of the enemy object
+    private Enemy prefab;
 
-    private Transform target; // The target object
+    protected Transform target;
 
-    [SerializeField] private float speed = 5f; // The speed of the enemy object
+    private float knockbackRecoveryTime = 10f; // Time to recover from knockback
+    private float stillThreshold = 0.1f;      // Threshold to determine if the enemy is still
 
-    [SerializeField] private float damage = 10f; // The damage dealt to the player
+    protected bool canMove = true;
 
-    [SerializeField] private bool selfRecoil = true; // Whether the enemy should recoil when colliding with the player
+    private Rigidbody rb;
 
-    [SerializeField] private float recoilForce = 10f; // The force applied to the enemy when it collides with the player
+    [SerializeField] private Explosion explosion;
 
-    [SerializeField] private float knockback = 10f; // The force applied to the player when it collides with the enemy
+    // Properties for stats
+    protected virtual float MaxHealth
+    {
+        get => maxHealth;
+        set => maxHealth = Mathf.Max(1f, value); // Ensure maxHealth is at least 1
+    }
 
-    private float knockbackRecoveryTime = 10f; // The maximum time it takes for the player to recover from knockback
+    protected virtual float Health
+    {
+        get => health;
+        set {
+            health = Mathf.Clamp(value, 0f, MaxHealth); // Clamp health between 0 and maxHealth
 
-    private float stillThreshold = 0.1f; // The threshold for the player to be considered still
+            if (health <= 0)
+            {
+                Die();
+            }
 
-    private bool canMove = true; // Whether the enemy can move
+            if (healthBar != null)
+            {
+                healthBar.SetHealth(Health);
+            }
+        }
+    }
 
-    private Rigidbody rb; // The rigidbody of the enemy object
+    protected virtual float Speed
+    {
+        get => speed;
+        set => speed = Mathf.Max(0f, value); // Ensure speed is non-negative
+    }
 
-    [SerializeField] private Explosion explosion; // The explosion object
+    protected virtual float Damage
+    {
+        get => damage;
+        set => damage = Mathf.Max(0f, value); // Ensure damage is non-negative
+    }
+
+    protected virtual float RecoilForce
+    {
+        get => recoilForce;
+        set => recoilForce = Mathf.Max(0f, value); // Ensure recoil force is non-negative
+    }
+
+    protected virtual float Knockback
+    {
+        get => knockback;
+        set => knockback = Mathf.Max(0f, value); // Ensure knockback is non-negative
+    }
 
     void OnEnable()
     {
-        // Listen to player registered event
         EventDispatcher.AddListener<PlayerRegisteredEvent>(OnPlayerRegistered);
     }
 
     void OnDisable()
     {
-        // Stop listening to player registered event
         EventDispatcher.RemoveListener<PlayerRegisteredEvent>(OnPlayerRegistered);
     }
 
@@ -61,105 +101,114 @@ public class Enemy : MonoBehaviour, IPoolable<Enemy>
 
     void Awake()
     {
-        // Get the Rigidbody component
         rb = GetComponent<Rigidbody>();
     }
 
     void Start()
     {
-        if (healthBar == null)
-        {
-            healthBar = GetComponentInChildren<HealthBar>();
-        }
+        InitializeHealthBar();
+        InitializeCustomSprite();
+        InitializeAnimator();
+    }
 
+    private void InitializeHealthBar()
+    {
+        healthBar ??= GetComponentInChildren<HealthBar>();
         if (healthBar != null)
         {
-            healthBar.SetMaxHealth(health);
+            healthBar.SetMaxHealth(MaxHealth);
+            healthBar.SetHealth(Health);
         }
     }
+
+    private void InitializeCustomSprite()
+    {
+        customSprite ??= GetComponentInChildren<CustomSprite>();
+        if (customSprite != null)
+        {
+            customSprite.SetFilename(filename);
+        }
+    }
+
+    private void InitializeAnimator()
+    {
+        animator ??= GetComponent<Animator>();
+    }
+
 
     void Update()
     {
         MoveTowardsTarget();
     }
 
-    void MoveTowardsTarget()
+    protected virtual void MoveTowardsTarget()
     {
         if (target == null || !canMove)
         {
             return;
         }
 
-        // Rotate towards the target
         Vector3 direction = target.position - transform.position;
         Quaternion rotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 2f);
 
-        // Move towards the target
-        transform.position += transform.forward * speed * Time.deltaTime;
+        transform.position += transform.forward * Speed * Time.deltaTime;
     }
 
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Damage the player
-            collision.gameObject.GetComponent<Player>().TakeDamage(damage);
-            collision.gameObject.GetComponent<Player>().TakeKnockback(knockback, transform.forward);
-
-            if (selfRecoil)
-            {
-                TakeKnockback(recoilForce, -transform.forward);
-            }
+            OnPlayerCollision(collision);
         }
     }
 
-    public void DisableRigidbody() {
+    protected virtual void OnPlayerCollision(Collision collision)
+    {
+        collision.gameObject.GetComponent<Player>().TakeDamage(Damage);
+        collision.gameObject.GetComponent<Player>().TakeKnockback(Knockback, transform.forward);
+
+        if (RecoilForce > 0)
+        {
+            TakeKnockback(RecoilForce, -transform.forward);
+        }
+    }
+
+    public void DisableRigidbody()
+    {
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.useGravity = false;
         rb.isKinematic = true;
     }
 
-    public void EnableRigidbody() {
+    public void EnableRigidbody()
+    {
         rb.useGravity = true;
         rb.isKinematic = false;
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float amount)
     {
-        health -= damage;
-
-        if (health <= 0)
-        {
-            health = 0;
-            Die();
-        }
-
-        if (healthBar != null)
-        {
-            healthBar.SetHealth(health);
-        }
+        Health -= amount;
     }
 
-    public void TakeKnockback(float knockback, Vector3 direction)
+    public void TakeKnockback(float knockbackForce, Vector3 direction)
     {
         if (rb != null)
         {
-            rb.AddForce(direction * knockback, ForceMode.Impulse);
+            rb.AddForce(direction * knockbackForce, ForceMode.Impulse);
             canMove = false;
 
-            if (health > 0)
+            if (Health > 0)
             {
-                // Start a coroutine to recover from knockback
                 StartCoroutine(RecoverFromKnockback());
             }
         }
     }
 
-    IEnumerator RecoverFromKnockback()
+    private IEnumerator RecoverFromKnockback()
     {
-        // Wait for maximum recovery time or until the enemy is still
         float timer = 0f;
         while (timer < knockbackRecoveryTime && rb.linearVelocity.magnitude > stillThreshold)
         {
@@ -190,10 +239,20 @@ public class Enemy : MonoBehaviour, IPoolable<Enemy>
         return name;
     }
 
-    void Die()
+    protected virtual void Die()
     {
         EventDispatcher.Raise<EnemyDeathEvent>(new EnemyDeathEvent { enemy = this.gameObject });
 
+        Explode();
+
+        if (EnemyPool.Instance != null)
+        {
+            EnemyPool.Instance.ReturnObject(prefab, this);
+        }
+    }
+
+    protected virtual void Explode() 
+    {
         if (ExplosionPool.Instance != null)
         {
             if (explosion == null)
@@ -203,7 +262,5 @@ public class Enemy : MonoBehaviour, IPoolable<Enemy>
 
             ExplosionPool.Instance.Explode(explosion, transform.position + Vector3.up);
         }
-
-        EnemyPool.Instance.ReturnObject(prefab, this);
     }
 }

@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool debug = false;
 
     // Devmode
-
     [SerializeField] private bool devmode = false;
 
     [SerializeField] private bool SpawnOnLoad = true;

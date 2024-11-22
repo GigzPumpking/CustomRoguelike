@@ -46,4 +46,9 @@ public class CustomSprite : MonoBehaviour
             target = gameObject
         });
     }
+
+    public void SetFilename(string newFileName) {
+        fileName = newFileName;
+        LoadNewSprite(fileName);
+    }
 }
