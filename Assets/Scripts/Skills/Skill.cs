@@ -2,12 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public abstract class Skill : MonoBehaviour, IKeyActionReceiver
+public abstract class Skill : MonoBehaviour
 {
     public string skillName; // The name of the skill
-    private KeyCode keyCode; // The key code to activate the skill
     private TextMeshProUGUI keyCodeDisplay; // The text displaying the key code
-    [SerializeField] private int skillIndex; // The index of the skill in the skill list
 
     private Image fill; // Black filter over the icon
     private TextMeshProUGUI cooldownText; // Text displaying the cooldown
@@ -89,28 +87,12 @@ public abstract class Skill : MonoBehaviour, IKeyActionReceiver
     {
         player = e.player;
         playerScript = player.GetComponent<Player>();
-
-        // Set the key code to the skill binding at the skill index if the skillBindings index is valid
-        if (playerScript.GetSkillBindings().Length > skillIndex)
-        {
-            keyCode = playerScript.GetSkillBindings()[skillIndex];
-
-            // Update the key code in InputManager and UI
-            InputManager.Instance.AddKeyBind(this, keyCode, skillName);
-            keyCodeDisplay.text = keyCode.ToString();
-        }
-        else if (debug)
-        {
-            Debug.LogError("Skill index is out of range.");
-        }
     }
 
-    public void OnKeyAction(string action)
+    public void UpdateKeyCode(KeyCode key)
     {
-        if (action == skillName)
-        {
-            ActivateSkill();
-        }
+        // Display the key code in the UI
+        keyCodeDisplay.text = key.ToString();
     }
 
     public void ActivateSkill()

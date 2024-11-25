@@ -10,11 +10,11 @@ public class Player : MonoBehaviour
     private Rigidbody rb; // The rigidbody of the player object
     [SerializeField] private float groundCheckDistance = 0.65f; // Distance to check below the player
     [SerializeField] private bool isGrounded;
-    [SerializeField] private KeyCode[] skillBindings; // The key bindings for the skills
 
     // Health
-    [SerializeField] private float health = 100f;
-    private HealthBar healthBar;
+    [SerializeField] private float currHealth = 100f;
+
+    [SerializeField] private float maxHealth = 100f;
 
     [SerializeField] private bool isInvulnerable = false;
 
@@ -34,21 +34,12 @@ public class Player : MonoBehaviour
 
         // Register the player object with the GameManager
         GameManager.Instance.RegisterPlayer(gameObject);
-
-        // Note: GameManager must be initialized before the player object
     }
-
+    
     void Start()
     {
-        if (healthBar == null)
-        {
-            healthBar = GetComponentInChildren<HealthBar>();
-        }
-
-        if (healthBar != null)
-        {
-            healthBar.SetMaxHealth(health);
-        }
+        UIManager.Instance.UpdatePlayerMaxHealth(maxHealth);
+        UIManager.Instance.UpdatePlayerHealth(currHealth);
     }
 
     void Update()
@@ -104,25 +95,6 @@ public class Player : MonoBehaviour
         });
     }
 
-    public void AppendSkillBind(KeyCode keyCode)
-    {
-        // Append the key code to the skill bindings array
-        Array.Resize(ref skillBindings, skillBindings.Length + 1);
-        skillBindings[skillBindings.Length - 1] = keyCode;
-    }
-
-    public void RemoveSkillBind(KeyCode keyCode)
-    {
-        // Remove the key code from the skill bindings array
-        skillBindings = skillBindings.Where(val => val != keyCode).ToArray();
-    }
-
-    public KeyCode[] GetSkillBindings()
-    {
-        // Get the skill bindings array
-        return skillBindings;
-    }
-
     public void TakeDamage(float damage)
     {
         if (isInvulnerable)
@@ -131,25 +103,20 @@ public class Player : MonoBehaviour
         }
 
         // Reduce the health of the player object
-        health -= damage;
+        currHealth -= damage;
 
         // Debugging
         if (debug)
         {
-            Debug.Log("Player health: " + health);
+            Debug.Log("Player health: " + currHealth);
         }
 
         // Check if the player object is dead
-        if (health <= 0)
+        if (currHealth <= 0)
         {
-            health = 0;
-            // Raise event 
         }
 
-        if (healthBar != null)
-        {
-            healthBar.SetHealth(health);
-        }
+        UIManager.Instance.UpdatePlayerHealth(currHealth);
     }
 
     public void TakeKnockback(float knockback, Vector3 direction)
@@ -165,12 +132,12 @@ public class Player : MonoBehaviour
 
     public float GetHealth()
     {
-        return health;
+        return currHealth;
     }
 
     public void SetHealth(float value)
     {
-        health = value;
+        currHealth = value;
     }
 
     public void SetInvulnerable(bool value)
