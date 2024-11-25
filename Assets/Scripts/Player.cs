@@ -26,6 +26,12 @@ public class Player : MonoBehaviour
         // Get the rigidbody component from the player object
         rb = GetComponent<Rigidbody>();
 
+        if (GameManager.Instance == null)
+        {
+            Debug.LogError("GameManager not found");
+            return;
+        }
+
         // Register the player object with the GameManager
         GameManager.Instance.RegisterPlayer(gameObject);
 
@@ -61,27 +67,6 @@ public class Player : MonoBehaviour
         // Get the input from the keyboard
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
-
-        // Check for any key press
-        if (Input.anyKeyDown)
-        {
-            // Check if the key pressed is a skill binding
-            foreach (KeyCode keyCode in skillBindings)
-            {   
-                if (Input.GetKeyDown(keyCode))
-                {
-                    if (debug)
-                    {
-                        Debug.Log("Key pressed: " + keyCode);
-                    }
-                    
-                    // Raise the KeyPress event
-                    EventDispatcher.Raise<KeyPressEvent>(new KeyPressEvent() {
-                        keyCode = keyCode
-                    });
-                }
-            }
-        }
     }
 
     void MoveHandler()

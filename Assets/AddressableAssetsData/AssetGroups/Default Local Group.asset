@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 37f0e89e2c5094214add4270608c117b
   m_SerializeEntries:
+  - m_GUID: 2a8ac01648bc14f509298368cbaad666
+    m_Address: Assets/Sprites/Freddy.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 56860a3ea703647d1b50b28340b2336b
     m_Address: Assets/Sprites/Placeholder.png
     m_ReadOnly: 0

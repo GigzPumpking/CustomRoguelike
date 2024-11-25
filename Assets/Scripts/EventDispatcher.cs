@@ -18,16 +18,6 @@ public class SkillActivatedEvent : Event
     public string skillName;
 }
 
-public class KeyPressEvent : Event
-{
-    public KeyCode keyCode;
-}
-
-public class AddKeybindEvent : Event
-{
-    public KeyCode keyCode;
-}
-
 public class DebugMessageEvent : Event
 {
     public string message;

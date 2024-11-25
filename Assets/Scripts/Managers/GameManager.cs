@@ -1,85 +1,50 @@
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IKeyActionReceiver
 {
     // Singleton instance
     public static GameManager Instance { get; private set; }
+
     [SerializeField] private LayerMask groundLayer; // Specify what layers count as ground
-
-    // Debugging
-    [SerializeField] private bool debug = false;
-
-    // Devmode
-    [SerializeField] private bool devmode = false;
-
-    [SerializeField] private bool SpawnOnLoad = true;
-
-    // KeyCode for quitting the game
-    [SerializeField] private KeyCode quitKey = KeyCode.Q;
-
-    [SerializeField] private KeyCode[] spawnEnemyKeys = { KeyCode.Alpha1 };
+    [SerializeField] private bool debug = false; // Debugging
+    [SerializeField] private bool devmode = false; // Devmode
+    [SerializeField] private bool SpawnOnLoad = true; // Spawn enemies on load
+    [SerializeField] private KeyCode quitKey = KeyCode.Q; // Quit key
+    [SerializeField] private KeyCode[] spawnEnemyKeys = { KeyCode.Alpha1 }; // Keys to spawn enemies
 
     private GameObject player;
 
-    private InputManager inputManager;
-
-    private EnemyPool enemyPool;
-
-    void OnEnable()
-    {
-        // Subscribe to the KeyPressEvent
-        EventDispatcher.AddListener<KeyPressEvent>(OnKeyPress);
-    }
-
-    void OnDisable()
-    {
-        // Unsubscribe from the KeyPressEvent
-        EventDispatcher.RemoveListener<KeyPressEvent>(OnKeyPress);
-    }
-
     private void Awake()
     {
-        // Check if an instance already exists
+        // Ensure singleton instance
         if (Instance != null && Instance != this)
         {
             Debug.LogWarning("Another instance of GameManager exists. Destroying this one.");
-            Destroy(gameObject); // Destroy this instance if it's not the first
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        if (InputManager.Instance == null)
+        {
+            Debug.LogError("InputManager not found");
             return;
         }
 
-        // Set the instance to this GameObject
-        Instance = this;
-
-        // Prevent this GameObject from being destroyed when loading new scenes
-        DontDestroyOnLoad(gameObject);
-
-        // Set the input manager from this GameObject
-        inputManager = GetComponent<InputManager>();
-
-        // Initialize the InputManager if it doesn't exist
-        if (inputManager == null)
+        // Register key actions with InputManager
+        InputManager.Instance.AddKeyBind(this, quitKey, "QuitGame");
+        for (int i = 0; i < spawnEnemyKeys.Length; i++)
         {
-            inputManager = gameObject.AddComponent<InputManager>();
+            InputManager.Instance.AddKeyBind(this, spawnEnemyKeys[i], $"SpawnEnemy_{i}");
         }
-
-        // Register the quit key with the InputManager
-
-        inputManager.RegisterKey(quitKey);
-
-        // Register the spawn enemy keys with the InputManager
-        foreach (KeyCode keyCode in spawnEnemyKeys)
-        {
-            inputManager.RegisterKey(keyCode);
-        }
-
-        enemyPool = GetComponent<EnemyPool>();
     }
 
-    void Start() {
-
+    private void Start()
+    {
         if (SpawnOnLoad)
         {
-            // Call EnemyPool to spawn enemies in random locations
+            // Spawn enemies on load
             for (int i = 0; i < 10; i++)
             {
                 Vector3 randomPosition = new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
@@ -104,9 +69,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Raise the PlayerRegistered event
-        EventDispatcher.Raise<PlayerRegisteredEvent>(new PlayerRegisteredEvent() {
-            player = playerObject
-        });
+        EventDispatcher.Raise(new PlayerRegisteredEvent { player = playerObject });
     }
 
     public GameObject GetPlayer()
@@ -114,45 +77,37 @@ public class GameManager : MonoBehaviour
         return player;
     }
 
-    void OnKeyPress(KeyPressEvent e)
+    public void OnKeyAction(string action)
     {
-        // Check if the quit key is pressed
-        if (e.keyCode == quitKey)
+        // Handle key actions
+        if (action == "QuitGame")
         {
-            // Quit the game
+            Debug.Log("Quitting the game.");
             Application.Quit();
-            return;
         }
-
-        if (devmode) {
-            // Check if the spawn enemy keys are pressed
-            foreach (KeyCode keyCode in spawnEnemyKeys)
+        else if (action.StartsWith("SpawnEnemy_") && devmode)
+        {
+            // Extract the enemy type from the action
+            if (int.TryParse(action.Split('_')[1], out int enemyType))
             {
-                if (e.keyCode == keyCode)
-                {
-                    // Spawn an enemy at a random location
-                    Vector3 randomPosition = new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
-                    // Spawn an enemy based on the index of the key code in the spawnEnemyKeys array
-                    enemyPool.SpawnEnemy(keyCode - spawnEnemyKeys[0], randomPosition);
-                    return;
-                }
+                Vector3 randomPosition = new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
+                EnemyPool.Instance.SpawnEnemy(enemyType, randomPosition);
+                Debug.Log($"Spawned enemy of type {enemyType} at {randomPosition}.");
+            }
+            else
+            {
+                Debug.LogWarning($"Invalid spawn enemy action: {action}");
             }
         }
-    }
-
-    public void RegisterKey(KeyCode keyCode)
-    {
-        // Register the key with the InputManager
-        inputManager.RegisterKey(keyCode);
-    }
-
-    public KeyCode[] GetSpawnEnemyKeys()
-    {
-        return spawnEnemyKeys;
     }
 
     public bool isDevmode()
     {
         return devmode;
+    }
+
+    public KeyCode[] GetSpawnEnemyKeys()
+    {
+        return spawnEnemyKeys;
     }
 }

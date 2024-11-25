@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public abstract class Skill : MonoBehaviour
+public abstract class Skill : MonoBehaviour, IKeyActionReceiver
 {
     public string skillName; // The name of the skill
     private KeyCode keyCode; // The key code to activate the skill
@@ -18,46 +18,6 @@ public abstract class Skill : MonoBehaviour
     protected Player playerScript; // Reference to the player script
 
     [SerializeField] protected bool debug = false; // Debug toggle for logs
-
-    protected virtual void OnEnable()
-    {
-        // Add the ActivateSkill method to the EventDispatcher
-        EventDispatcher.AddListener<SkillActivatedEvent>(ActivateSkill);
-
-        // Add the KeyPress event to the EventDispatcher
-        EventDispatcher.AddListener<KeyPressEvent>(OnKeyPress);
-
-        // Add PlayerRegisteredEvent to the EventDispatcher
-        EventDispatcher.AddListener<PlayerRegisteredEvent>(OnPlayerRegistered);
-    }
-
-    protected virtual void OnDisable()
-    {
-        // Remove the ActivateSkill method from the EventDispatcher
-        EventDispatcher.RemoveListener<SkillActivatedEvent>(ActivateSkill);
-
-        // Remove the KeyPress event from the EventDispatcher
-        EventDispatcher.RemoveListener<KeyPressEvent>(OnKeyPress);
-
-        // Remove the PlayerRegisteredEvent from the EventDispatcher
-        EventDispatcher.RemoveListener<PlayerRegisteredEvent>(OnPlayerRegistered);
-    }
-
-    private void OnPlayerRegistered(PlayerRegisteredEvent e)
-    {
-        player = e.player;
-        playerScript = player.GetComponent<Player>();
-
-        // Set the key code to the skill binding at the skill index if the skillbindings index is valid
-        if (playerScript.GetSkillBindings().Length > skillIndex) {
-            keyCode = playerScript.GetSkillBindings()[skillIndex];
-
-            // Set the key code display text to the key code
-            keyCodeDisplay.text = keyCode.ToString();
-        } else if (debug) {
-            Debug.LogError("Skill index is out of range.");
-        }
-    }
 
     protected virtual void Awake()
     {
@@ -113,33 +73,48 @@ public abstract class Skill : MonoBehaviour
         }
     }
 
-    protected virtual void OnKeyPress(KeyPressEvent e)
+    protected virtual void OnEnable()
     {
-        if (e.keyCode != keyCode)
-        {
-            // The key does not match the skill name,
-            if (debug)
-            {
-                Debug.Log("Key does not match the skill name.");
-            }
-            return;
-        }
-
-        ActivateSkill();
+        // Subscribe to PlayerRegisteredEvent to set key bindings dynamically
+        EventDispatcher.AddListener<PlayerRegisteredEvent>(OnPlayerRegistered);
     }
 
-    public void ActivateSkill(SkillActivatedEvent e)
+    protected virtual void OnDisable()
     {
-        if (e.skillName != skillName)
-        {
-            // The skill name does not match, return
-            return;
-        }
-
-        ActivateSkill();
+        // Unsubscribe from PlayerRegisteredEvent
+        EventDispatcher.RemoveListener<PlayerRegisteredEvent>(OnPlayerRegistered);
     }
 
-    public void ActivateSkill() {
+    private void OnPlayerRegistered(PlayerRegisteredEvent e)
+    {
+        player = e.player;
+        playerScript = player.GetComponent<Player>();
+
+        // Set the key code to the skill binding at the skill index if the skillBindings index is valid
+        if (playerScript.GetSkillBindings().Length > skillIndex)
+        {
+            keyCode = playerScript.GetSkillBindings()[skillIndex];
+
+            // Update the key code in InputManager and UI
+            InputManager.Instance.AddKeyBind(this, keyCode, skillName);
+            keyCodeDisplay.text = keyCode.ToString();
+        }
+        else if (debug)
+        {
+            Debug.LogError("Skill index is out of range.");
+        }
+    }
+
+    public void OnKeyAction(string action)
+    {
+        if (action == skillName)
+        {
+            ActivateSkill();
+        }
+    }
+
+    public void ActivateSkill()
+    {
         // Check if the skill is not on cooldown
         if (!isOnCooldown)
         {
@@ -170,7 +145,7 @@ public abstract class Skill : MonoBehaviour
             }
         }
     }
-    
+
     protected void DamageEnemy(GameObject enemy, float damage)
     {
         Enemy e = enemy.GetComponent<Enemy>();

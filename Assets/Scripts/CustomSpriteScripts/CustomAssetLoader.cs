@@ -14,6 +14,8 @@ public class CustomAssetLoader : MonoBehaviour
     // List of supported image file extensions
     private readonly string[] supportedImageExtensions = { ".png", ".jpg", ".jpeg" };
 
+    [SerializeField] private bool keepAspectRatio = true; // Toggle to keep aspect ratio
+
     void Awake()
     {
         // Define the runtime user assets folder path (outside Unity project)
@@ -175,8 +177,32 @@ public class CustomAssetLoader : MonoBehaviour
 
         // Calculate the scale needed to match the desired size
         Vector3 newScale = spriteRenderer.transform.localScale;
-        newScale.x = desiredSize.x / spriteSize.x;
-        newScale.y = desiredSize.y / spriteSize.y;
+
+        if (keepAspectRatio)
+        {
+            // Keep the aspect ratio of the sprite
+            float spriteAspectRatio = spriteSize.x / spriteSize.y;
+            float desiredAspectRatio = desiredSize.x / desiredSize.y;
+
+            if (spriteAspectRatio > desiredAspectRatio)
+            {
+                // Fit to desired width
+                newScale.x = desiredSize.x / spriteSize.x;
+                newScale.y = newScale.x;
+            }
+            else
+            {
+                // Fit to desired height
+                newScale.y = desiredSize.y / spriteSize.y;
+                newScale.x = newScale.y;
+            }
+        }
+        else
+        {
+            // Stretch the sprite to fit the desired size
+            newScale.x = desiredSize.x / spriteSize.x;
+            newScale.y = desiredSize.y / spriteSize.y;
+        }
 
         // Apply the new scale to the SpriteRenderer's GameObject
         spriteRenderer.transform.localScale = newScale;

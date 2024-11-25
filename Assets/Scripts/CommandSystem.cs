@@ -10,8 +10,6 @@ public class CommandSystem : MonoBehaviour
     
     private GameObject content; // Content object for history text
 
-    [SerializeField] private KeyCode typeKey = KeyCode.T; // Key to activate the input field
-
     private void Awake()
     {
         // Ensure references are assigned
@@ -29,7 +27,7 @@ public class CommandSystem : MonoBehaviour
             inputField.onSubmit.AddListener(OnCommandEntered);
         }
 
-        EventDispatcher.AddListener<KeyPressEvent>(OnKeyPress);
+        inputField.ActivateInputField();
     }
 
     private void OnDisable()
@@ -39,13 +37,6 @@ public class CommandSystem : MonoBehaviour
         {
             inputField.onSubmit.RemoveListener(OnCommandEntered);
         }
-
-        EventDispatcher.RemoveListener<KeyPressEvent>(OnKeyPress);
-    }
-
-    void Start()
-    {
-        GameManager.Instance.RegisterKey(typeKey);
     }
 
     private void OnCommandEntered(string command)
@@ -63,14 +54,18 @@ public class CommandSystem : MonoBehaviour
 
     private void AddToHistory(string message)
     {
-        // Add new message to the text display
-        textHistory.text += $"\n{message}";
+        textHistory.text = textHistory.text == "" ? message : $"{textHistory.text}\n{message}";
 
         // Update the layout
         LayoutRebuilder.ForceRebuildLayoutImmediate(textHistory.rectTransform);
 
         // update the scrollbar's size and position
         scrollRect.verticalNormalizedPosition = 0f;
+    }
+
+    private void ClearHistory()
+    {
+        textHistory.text = "";
     }
 
     private void ProcessCommand(string command)
@@ -83,18 +78,6 @@ public class CommandSystem : MonoBehaviour
         else
         {
             AddToHistory($"System: Unknown command '{command}'.");
-        }
-    }
-
-    private void OnKeyPress(KeyPressEvent e)
-    {
-        if (e.keyCode == typeKey)
-        {
-            // If input field is active, activate it
-            if (inputField.gameObject.activeSelf)
-            {
-                inputField.ActivateInputField();
-            }
         }
     }
 }

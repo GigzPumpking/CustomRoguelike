@@ -1,53 +1,105 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    [SerializeField] private List<KeyCode> registeredKeys = new List<KeyCode>();
+    public static InputManager Instance { get; private set; }
 
-    void OnEnable()
+    [System.Serializable]
+    public class KeyBindPair
     {
-        // Subscribe to the AddKeybindEvent
-        EventDispatcher.AddListener<AddKeybindEvent>(OnAddKeybind);
-    }
+        public MonoBehaviour script; // Associated script
+        public List<KeyBindAction> keyBindActions; // Actions for this script
 
-    void OnDisable()
-    {
-        // Unsubscribe from the AddKeybindEvent
-        EventDispatcher.RemoveListener<AddKeybindEvent>(OnAddKeybind);
-    }
-
-    void OnAddKeybind(AddKeybindEvent e)
-    {
-        // Add the key binding to the list of registered keys if it doesn't already exist
-        if (!registeredKeys.Contains(e.keyCode)) {
-            registeredKeys.Add(e.keyCode);
+        public KeyBindPair(MonoBehaviour script)
+        {
+            this.script = script;
+            this.keyBindActions = new List<KeyBindAction>();
         }
     }
 
-    public void RegisterKey(KeyCode keyCode)
+    [System.Serializable]
+    public class KeyBindAction
     {
-        // Add the key binding to the list of registered keys if it doesn't already exist
-        if (!registeredKeys.Contains(keyCode)) {
-            registeredKeys.Add(keyCode);
+        public KeyCode keyCode;  // The key associated with the action
+        public string action;    // Action identifier (e.g., "Jump", "Sprint")
+
+        public KeyBindAction(KeyCode keyCode, string action)
+        {
+            this.keyCode = keyCode;
+            this.action = action;
+        }
+    }
+
+    [SerializeField]
+    private List<KeyBindPair> keyBindPairs = new List<KeyBindPair>();
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Optional: Persist across scenes
+        }
+        else
+        {
+            Destroy(gameObject); // Destroy duplicate instances
+        }
+    }
+
+    public void AddKeyBind(MonoBehaviour script, KeyCode keyCode, string action)
+    {
+        // Find the existing KeyBindPair for the script
+        KeyBindPair existingPair = keyBindPairs.Find(pair => pair.script == script);
+
+        if (existingPair != null)
+        {
+            // Check if the key-action pair already exists
+            if (!existingPair.keyBindActions.Exists(kba => kba.keyCode == keyCode && kba.action == action))
+            {
+                existingPair.keyBindActions.Add(new KeyBindAction(keyCode, action));
+            }
+        }
+        else
+        {
+            // Create a new KeyBindPair and add it to the list
+            KeyBindPair newPair = new KeyBindPair(script);
+            newPair.keyBindActions.Add(new KeyBindAction(keyCode, action));
+            keyBindPairs.Add(newPair);
+        }
+    }
+
+    public void RemoveKeyBind(MonoBehaviour script, KeyCode keyCode, string action)
+    {
+        // Find the existing KeyBindPair for the script
+        KeyBindPair existingPair = keyBindPairs.Find(pair => pair.script == script);
+
+        if (existingPair != null)
+        {
+            // Remove the specific key-action pair
+            existingPair.keyBindActions.RemoveAll(kba => kba.keyCode == keyCode && kba.action == action);
+
+            // If no key-action pairs remain, remove the entire pair
+            if (existingPair.keyBindActions.Count == 0)
+            {
+                keyBindPairs.Remove(existingPair);
+            }
         }
     }
 
     void Update()
     {
-        // Check for any key press
-        if (Input.anyKeyDown)
+        // Iterate through all keybinds and check for input
+        foreach (KeyBindPair pair in keyBindPairs)
         {
-            // Check if the key pressed is a registered key binding
-            foreach (KeyCode keyCode in registeredKeys)
+            foreach (KeyBindAction keyBindAction in pair.keyBindActions)
             {
-                if (Input.GetKeyDown(keyCode))
+                if (Input.GetKeyDown(keyBindAction.keyCode))
                 {
-                    // Raise the KeyPress event
-                    EventDispatcher.Raise<KeyPressEvent>(new KeyPressEvent()
+                    if (pair.script is IKeyActionReceiver receiver)
                     {
-                        keyCode = keyCode
-                    });
+                        receiver.OnKeyAction(keyBindAction.action);
+                    }
                 }
             }
         }
