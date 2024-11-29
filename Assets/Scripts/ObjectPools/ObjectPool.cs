@@ -10,7 +10,7 @@ public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolab
         public int initialSize;    // Initial size of the pool for this prefab
     }
 
-    [SerializeField] private List<PoolSettings> poolSettingsList; // List of prefabs and their initial pool sizes
+    [SerializeField] protected List<PoolSettings> poolSettingsList; // List of prefabs and their initial pool sizes
     [SerializeField] private bool expandPool = true;             // Allow the pool to expand if needed
 
     private Dictionary<T, Queue<T>> pools = new Dictionary<T, Queue<T>>();

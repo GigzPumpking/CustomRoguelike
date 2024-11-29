@@ -156,7 +156,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 980, y: -20}
-  m_SizeDelta: {x: 1920, y: 0}
+  m_SizeDelta: {x: 1920, y: 33.52}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &39962968
 MonoBehaviour:
@@ -438,7 +438,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 636065326}
   m_HandleRect: {fileID: 636065325}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -519,8 +519,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 640, y: 420}
+  m_AnchoredPosition: {x: 0, y: 10}
+  m_SizeDelta: {x: 640, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &218012504
 MonoBehaviour:
@@ -771,7 +771,7 @@ RectTransform:
   m_Father: {fileID: 1083212074}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1034,7 +1034,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -0.000030517578}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 73.520004}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &532711633
 MonoBehaviour:
@@ -1212,6 +1212,7 @@ MonoBehaviour:
   - {fileID: 274289466}
   - {fileID: 515375983}
   maxSkills: 5
+  debug: 0
 --- !u!114 &590416005 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3046502024090931006, guid: bfca66fbcf4ea4a69aac30a570958b9b, type: 3}
@@ -1653,6 +1654,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c801c1ba1b8245e89ec9d273420f744, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  layoutUpdateDelay: 0.3
 --- !u!1 &829118132
 GameObject:
   m_ObjectHideFlags: 0
@@ -1792,8 +1794,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2060,7 +2062,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1216252369
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2345,7 +2347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 0
-  keepAspectRatio: 1
+  keepAspectRatio: 0
 --- !u!114 &1672782772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2375,6 +2377,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poolSettingsList:
+  - prefab: {fileID: 7501763265820616280, guid: c0c43bf5c05ae46a6952f1bbb952c4fe, type: 3}
+    initialSize: 10
   - prefab: {fileID: 7501763265820616280, guid: e6a81b22556354101bf449041f4f8c06, type: 3}
     initialSize: 10
   expandPool: 1
@@ -2619,7 +2623,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000030517578}
+  m_AnchoredPosition: {x: 0, y: 0.0000076293945}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &1757332883
@@ -2646,7 +2650,7 @@ MonoBehaviour:
     m_Left: 20
     m_Right: 0
     m_Top: 10
-    m_Bottom: 0
+    m_Bottom: 30
   m_ChildAlignment: 0
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
@@ -3233,7 +3237,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5609332564822633683, guid: 8ad9abc9d581948df9a2c611deab082a, type: 3}
       propertyPath: fileName
-      value: Player
+      value: Freddy
       objectReference: {fileID: 0}
     - target: {fileID: 5955250486538751786, guid: 8ad9abc9d581948df9a2c611deab082a, type: 3}
       propertyPath: m_Name
@@ -3281,6 +3285,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6129438087561660059, guid: 8ad9abc9d581948df9a2c611deab082a, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6150237156837353861, guid: 8ad9abc9d581948df9a2c611deab082a, type: 3}
+      propertyPath: debug
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6332637432998580493, guid: 8ad9abc9d581948df9a2c611deab082a, type: 3}

@@ -24,9 +24,9 @@ public class EnemyPool : ObjectPool<Enemy>
         }
     }
 
-    // <summary>
-    /// Spawns an enemy of a specific type at a given position.
     /// <summary>
+    /// Spawns an enemy of a specific type at a given position.
+    /// </summary>
     /// <param name="index">The index of the enemy prefab to spawn.</param>
     /// <param name="position">The position to spawn the enemy.</param>
     public void SpawnEnemy(int index, Vector3 position)
@@ -39,12 +39,45 @@ public class EnemyPool : ObjectPool<Enemy>
     }
 
     /// <summary>
-    /// Despawns the specified enemy, returning it to the pool.
+    /// Spawns an enemy of a specific type by its name.
     /// </summary>
-    /// <param name="prefab">The prefab type of the enemy.</param>
-    /// <param name="enemy">The enemy instance to despawn.</param>
-    public void DespawnEnemy(Enemy prefab, Enemy enemy)
+    /// <param name="name">The name of the enemy to spawn.</param>
+    /// <param name="count">The number of enemies to spawn.</param>
+    /// <returns>True if the enemy was successfully spawned, false otherwise.</returns>
+    public bool SpawnEnemy(string name, int count)
     {
-        ReturnObject(prefab, enemy);
+        // Find the prefab with the specified name
+        Enemy prefab = FindEnemyPrefabByName(name);
+
+        if (prefab == null)
+        {
+            Debug.LogError($"Enemy prefab not found for name: {name}");
+            return false;
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            SpawnEnemy(prefab, new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10)));
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Finds an enemy prefab by its name.
+    /// </summary>
+    /// <param name="name">The name of the enemy to find.</param>
+    /// <returns>The enemy prefab if found, or null if not found.</returns>
+    private Enemy FindEnemyPrefabByName(string name)
+    {
+        foreach (var settings in poolSettingsList)
+        {
+            if (settings.prefab.GetName().ToLower() == name)
+            {
+                return settings.prefab;
+            }
+        }
+
+        return null; // Return null if no matching prefab is found
     }
 }

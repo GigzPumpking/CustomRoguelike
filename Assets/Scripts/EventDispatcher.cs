@@ -44,6 +44,12 @@ public class EnemyDeathEvent : Event
     public GameObject enemy;
 }
 
+public class SpawnEnemyEvent : Event
+{
+    public string enemyName;
+    public int enemyCount;
+}
+
 public class EventDispatcher 
 {
     private static EventDispatcher _instance;

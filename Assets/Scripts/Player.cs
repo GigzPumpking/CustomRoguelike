@@ -21,6 +21,8 @@ public class Player : MonoBehaviour
     // Debugging
     [SerializeField] private bool debug = false;
 
+    private IInputStateProvider inputSystem;
+
     void Awake()
     {
         // Get the rigidbody component from the player object
@@ -38,8 +40,22 @@ public class Player : MonoBehaviour
     
     void Start()
     {
+        if (UIManager.Instance == null)
+        {
+            Debug.LogError("UIManager not found");
+            return;
+        }
+        
         UIManager.Instance.UpdatePlayerMaxHealth(maxHealth);
         UIManager.Instance.UpdatePlayerHealth(currHealth);
+
+        if (InputManager.Instance == null)
+        {
+            Debug.LogError("InputManager not found");
+            return;
+        }
+
+        inputSystem = InputManager.Instance;
     }
 
     void Update()
@@ -55,6 +71,13 @@ public class Player : MonoBehaviour
 
     void InputHandler()
     {
+        if (inputSystem != null && !inputSystem.IsInputEnabled)
+        {
+            horizontal = 0;
+            vertical = 0;
+            return;
+        }   
+
         // Get the input from the keyboard
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");

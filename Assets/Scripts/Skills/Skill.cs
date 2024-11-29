@@ -21,9 +21,6 @@ public abstract class Skill : MonoBehaviour
     {
         // Get the TextMeshProUGUI component from the child named "CooldownText"
         cooldownText = transform.Find("Cooldown").GetComponent<TextMeshProUGUI>();
-
-        // Get the TextMeshProUGUI component from the child named "KeyCode"'s child Text
-        keyCodeDisplay = transform.Find("KeyCode").Find("Text").GetComponent<TextMeshProUGUI>();
     }
 
     protected virtual void Start()
@@ -91,6 +88,11 @@ public abstract class Skill : MonoBehaviour
 
     public void UpdateKeyCode(KeyCode key)
     {
+        if (keyCodeDisplay == null)
+        {  
+            keyCodeDisplay = transform.Find("KeyCode").Find("Text").GetComponent<TextMeshProUGUI>();
+        }
+
         // Display the key code in the UI
         keyCodeDisplay.text = key.ToString();
     }

@@ -65,14 +65,24 @@ public class UIManager : MonoBehaviour, IKeyActionReceiver
         InitializeDefaultSkills();
 
         // Register keys with InputManager
-        InputManager.Instance.AddKeyBind(this, debugToggleKey, "ToggleDebugger");
-        InputManager.Instance.AddKeyBind(this, commandSystemEnterKey, "CommandSystemEnter");
-        InputManager.Instance.AddKeyBind(this, commandSystemExitKey, "CommandSystemExit");
+        InputManager.Instance.AddKeyBind(this, debugToggleKey, "ToggleDebugger", "UI");
+        InputManager.Instance.AddKeyBind(this, commandSystemEnterKey, "CommandSystemEnter", "Core");
+        InputManager.Instance.AddKeyBind(this, commandSystemExitKey, "CommandSystemExit", "Core");
 
         // Find the player UI in children
         playerUI = transform.Find("PlayerUI").gameObject;
+        if (playerUI == null)
+        {
+            if (debug) Debug.LogError("PlayerUI not found");
+            return;
+        }
         playerHealthBar = playerUI.GetComponentInChildren<HealthBar>();
         skillsUI = playerUI.transform.Find("Skills").gameObject;
+        if (playerHealthBar == null || skillsUI == null)
+        {
+            if (debug) Debug.LogError("PlayerHealthBar or SkillsUI not found");
+            return;
+        }
 
         // Find the debugger panel in children
         debugger = transform.Find("Debug").gameObject;
@@ -256,7 +266,7 @@ public class UIManager : MonoBehaviour, IKeyActionReceiver
 
     private void ToggleCommandSystem(bool toggle)
     {
-        commandSystem.gameObject.SetActive(toggle);
+        commandSystem.Toggle(toggle);
     }
 
     public void SetDebugMessage(string message)
