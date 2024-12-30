@@ -2347,7 +2347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 0
-  keepAspectRatio: 0
+  keepAspectRatio: 1
 --- !u!114 &1672782772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3237,7 +3237,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5609332564822633683, guid: 8ad9abc9d581948df9a2c611deab082a, type: 3}
       propertyPath: fileName
-      value: Freddy
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 5955250486538751786, guid: 8ad9abc9d581948df9a2c611deab082a, type: 3}
       propertyPath: m_Name

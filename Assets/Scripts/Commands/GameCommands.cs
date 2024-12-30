@@ -2,14 +2,15 @@ using System;
 
 public class SpawnEnemyCommand : ICommand
 {
-    public string Name => "spawn_enemy";
-    public string Description => "Spawns enemies. Usage: spawn_enemy <name> [<count>]";
+    public string Name => "spawn";
+    public string Description => $"Spawns enemies. Usage: {Usage}";
+    public string Usage => $"{Name} <name> [<count>]";
 
     public void Execute(string[] parameters, Action<string> outputCallback)
     {
         if (parameters.Length == 0)
         {
-            outputCallback("Error: Missing required parameter. Usage: spawn_enemy <name> [<count>].");
+            outputCallback($"Error: Missing required parameter. Usage: {Usage}.");
             return;
         }
 

@@ -11,6 +11,7 @@ public class ClearHistoryCommand : ICommand
 
     public string Name => "clear";
     public string Description => "Clears the command history.";
+    public string Usage => "clear";
 
     public void Execute(string[] parameters, Action<string> outputCallback)
     {
@@ -30,6 +31,7 @@ public class HelpCommand : ICommand
 
     public string Name => "help";
     public string Description => "Displays a list of available commands.";
+    public string Usage => "help";
 
     public void Execute(string[] parameters, Action<string> outputCallback)
     {
